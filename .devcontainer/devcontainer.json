@@ -1,6 +1,6 @@
 {
   "name": "Python 3.13",
-  "image": "mcr.microsoft.com/devcontainers/python:3.13",
+  "image": "mcr.microsoft.com/devcontainers/python:3.13-bookworm",
   "features": {
     "ghcr.io/devcontainers/features/aws-cli:1": {},
     "ghcr.io/devcontainers/features/sshd:1": {},
@@ -24,7 +24,8 @@
         "oderwat.indent-rainbow",
         "ms-azuretools.vscode-docker",
         "ClemensPeters.format-json",
-        "ChaitanyaShahare.lazygit"
+        "ChaitanyaShahare.lazygit",
+        "charliermarsh.ruff"
       ]
     }
   },
