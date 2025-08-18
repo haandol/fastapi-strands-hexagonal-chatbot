@@ -9,13 +9,34 @@ This project implements hexagonal architecture (ports and adapters pattern) with
 ```
 src/
 ├── adapters/           # External interfaces
-│   ├── primary/        # Inbound adapters (REST API)
-│   └── secondary/      # Outbound adapters (Strands, File storage)
+│   ├── primary/        # Inbound adapters (REST API controllers)
+│   │   ├── chat_controller.py
+│   │   ├── session_controller.py
+│   │   ├── ping_controller.py
+│   │   ├── router.py
+│   │   └── exceptions/
+│   └── secondary/      # Outbound adapters (Strands implementations)
+│       ├── strands_agent_manager.py
+│       └── strands_session_manager.py
 ├── domain/             # Business entities
+│   └── entities/
+│       └── message.py
 ├── ports/              # Interface definitions
+│   ├── agent_manager.py
+│   ├── session_manager.py
+│   ├── chat_service.py
+│   ├── message_repository.py
+│   ├── dtos/
+│   │   ├── requests.py
+│   │   └── responses.py
+│   └── exceptions/
 ├── services/           # Application services
+│   └── chat_service.py
 ├── config/             # Configuration and dependencies
+│   ├── settings.py
+│   └── dependencies.py
 └── utils/              # Utilities
+    └── logger.py
 ```
 
 ## Features
@@ -66,7 +87,7 @@ Create a `.env` file with the following variables:
 MODEL_ID="us.anthropic.claude-sonnet-4-20250514-v1:0"
 MODEL_TEMPERATURE="0.3"
 MODEL_MAX_TOKENS="2048"
-AWS_PROFILE_NAME="default"  # Optional
+# AWS_PROFILE_NAME="default"  # Optional
 ENVIRONMENT="local"
 ```
 
@@ -102,9 +123,9 @@ Content-Type: application/json
 ### Session Management
 
 ```http
-POST /sessions/{session_id}
-GET /sessions/{session_id}
-DELETE /sessions/{session_id}
+POST /v1/sessions/{session_id}
+GET /v1/sessions/{session_id}
+DELETE /v1/sessions/{session_id}
 ```
 
 ## Project Structure
@@ -112,17 +133,17 @@ DELETE /sessions/{session_id}
 ### Core Components
 
 - **ChatService**: Orchestrates chat interactions between agents and sessions
-- **AgentManager**: Handles AI model interactions via Strands
-- **SessionManager**: Manages conversation persistence
+- **AgentManager**: Interface for AI model interactions via Strands
+- **SessionManager**: Interface for conversation persistence
 - **Controllers**: Handle HTTP requests and responses
 
 ### Adapters
 
 #### Primary Adapters (Inbound)
 
-- `ChatController`: REST API for chat interactions
-- `SessionController`: REST API for session management
-- `PingController`: Health check endpoint
+- `ChatController`: REST API for chat interactions at `/v1/invocations`
+- `SessionController`: REST API for session management at `/v1/sessions`
+- `PingController`: Health check endpoint at `/ping`
 
 #### Secondary Adapters (Outbound)
 
@@ -134,6 +155,7 @@ DELETE /sessions/{session_id}
 - `AgentManager`: Interface for AI model interactions
 - `SessionManager`: Interface for session persistence
 - `ChatService`: Interface for chat orchestration
+- `MessageRepository`: Interface for message storage
 
 ## Dependencies
 
