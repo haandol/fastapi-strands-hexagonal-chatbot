@@ -1,4 +1,4 @@
-from typing import AsyncGenerator, Optional
+from typing import AsyncIterator, Any, Optional
 
 from strands import Agent
 from strands.models.bedrock import BedrockModel
@@ -11,17 +11,14 @@ class StrandsAgentManager(AgentManager):
         model = BedrockModel(
             model_id=model_id,
             aws_profile_name=aws_profile_name,
-            # cache_prompt="default",
-            # cache_tools="default",
+            streaming=True,
         )
-        self.agent = Agent(model=model)
+        self.agent: Agent = Agent(model=model)
 
     async def generate_response(self, session_id: str, content: str) -> str:
         response = await self.agent.invoke_async(prompt=content)
         content = response.message["content"][0]
         return content["text"]
 
-    async def generate_response_stream(self, session_id: str, content: str) -> AsyncGenerator[str, None]:
-        response = await self.agent.invoke_stream_async(prompt=content)
-        async for chunk in response:
-            yield chunk.message["content"][0]["text"]
+    async def generate_response_stream(self, session_id: str, content: str) -> AsyncIterator[Any]:
+        return self.agent.stream_async(prompt=content)

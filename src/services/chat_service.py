@@ -1,4 +1,4 @@
-from typing import AsyncGenerator, Union
+from typing import AsyncIterator, Any, Union
 
 from ports.agent_manager import AgentManager
 from ports.session_manager import SessionManager
@@ -13,7 +13,7 @@ class ChatService:
         self.agent_manager = agent_manager
         self.session_manager = session_manager
 
-    async def invoke_async(self, session_id: str, content: str, stream: bool = False) -> Union[str, AsyncGenerator[str, None]]:
+    async def generate_response(self, session_id: str, content: str, stream: bool = False) -> Union[str, AsyncIterator[Any]]:
         # Ensure session exists
         try:
             await self.session_manager.get_session_data(session_id)

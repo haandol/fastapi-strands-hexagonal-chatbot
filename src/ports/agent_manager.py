@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import AsyncGenerator
+from typing import AsyncIterator, Any
 
 
 class AgentManager(ABC):
@@ -8,5 +8,5 @@ class AgentManager(ABC):
         pass
 
     @abstractmethod
-    async def generate_response_stream(self, session_id: str, content: str) -> AsyncGenerator[str, None]:
+    async def generate_response_stream(self, session_id: str, content: str) -> AsyncIterator[Any]:
         pass
