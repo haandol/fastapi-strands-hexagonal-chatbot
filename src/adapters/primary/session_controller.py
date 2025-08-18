@@ -3,7 +3,7 @@ from typing import Dict
 from fastapi import APIRouter
 
 from ports.session_manager import SessionManager
-from ports.dtos.responses import SessionResponse
+from ports.dtos import SessionResponse
 
 
 class SessionController:

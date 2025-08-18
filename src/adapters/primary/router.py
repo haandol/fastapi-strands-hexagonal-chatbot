@@ -3,11 +3,11 @@ from fastapi import APIRouter
 from adapters.primary.ping_controller import PingController
 from adapters.primary.session_controller import SessionController
 from adapters.primary.chat_controller import ChatController
-from config.dependencies import Container
+from config.dependencies import DIContainer
 
 
 def create_api_router() -> APIRouter:
-    container = Container()
+    container = DIContainer()
 
     ping_controller = PingController()
     session_controller = SessionController(container.session_manager)

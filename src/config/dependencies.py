@@ -5,7 +5,7 @@ from adapters.secondary.strands_session_manager import StrandsSessionManager
 from config.settings import settings
 
 
-class Container:
+class DIContainer:
     def __init__(self):
         self._session_manager = StrandsSessionManager()
         self._agent_manager = StrandsAgentManager(
