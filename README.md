@@ -73,7 +73,7 @@ ENVIRONMENT="local"
 ### Running the Application
 
 ```bash
-uv run main.py
+uv run src/main.py
 ```
 
 The API will be available at `http://localhost:8000`

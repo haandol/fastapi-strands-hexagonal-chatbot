@@ -20,7 +20,7 @@ RUN uv sync --frozen --no-cache
 # Copy environment variables
 COPY env/local.env ./.env
 
-COPY . /app
+COPY ./src /app
 
 # Use dumb-init to handle signals
 ENTRYPOINT ["dumb-init", "--"]
