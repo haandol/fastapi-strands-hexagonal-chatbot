@@ -6,7 +6,7 @@ from src.ports.session_manager import SessionManager
 
 
 class StrandsSessionManager(SessionManager):
-    def __init__(self, base_path: str = "./sessions"):
+    def __init__(self, base_path: str = "./.sessions"):
         self.base_path = base_path
 
     async def create_session(self, session_id: str) -> None:
