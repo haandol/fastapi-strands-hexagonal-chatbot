@@ -24,8 +24,8 @@
         "oderwat.indent-rainbow",
         "ms-azuretools.vscode-docker",
         "ClemensPeters.format-json",
-        "ChaitanyaShahare.lazygit",
-        "charliermarsh.ruff"
+        "charliermarsh.ruff",
+        "ChaitanyaShahare.lazygit"
       ]
     }
   },
