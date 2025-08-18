@@ -3,9 +3,9 @@ import json
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 
-from src.services.chat_service import ChatService
-from src.ports.dtos.requests import ChatRequest
-from src.ports.dtos.responses import ChatResponse
+from services.chat_service import ChatService
+from ports.dtos.requests import ChatRequest
+from ports.dtos.responses import ChatResponse
 
 
 class ChatController:

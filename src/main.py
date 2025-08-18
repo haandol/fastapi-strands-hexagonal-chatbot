@@ -4,8 +4,8 @@ load_dotenv()  # noqa: E402
 
 from fastapi import FastAPI
 
-from src.adapters.primary.router import create_api_router
-from src.adapters.primary.exceptions.session import SessionNotFoundError, session_not_found_handler
+from adapters.primary.router import create_api_router
+from adapters.primary.exceptions.session import SessionNotFoundError, session_not_found_handler
 
 
 def create_app() -> FastAPI:

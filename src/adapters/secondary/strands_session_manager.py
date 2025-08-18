@@ -2,7 +2,7 @@ from typing import Dict, Any
 
 from strands.session.file_session_manager import FileSessionManager
 
-from src.ports.session_manager import SessionManager
+from ports.session_manager import SessionManager
 
 
 class StrandsSessionManager(SessionManager):

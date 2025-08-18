@@ -1,8 +1,8 @@
-from src.services.chat_service import ChatService
-from src.ports.session_manager import SessionManager
-from src.adapters.secondary.strands_agent_manager import StrandsAgentManager
-from src.adapters.secondary.strands_session_manager import StrandsSessionManager
-from src.config.settings import settings
+from services.chat_service import ChatService
+from ports.session_manager import SessionManager
+from adapters.secondary.strands_agent_manager import StrandsAgentManager
+from adapters.secondary.strands_session_manager import StrandsSessionManager
+from config.settings import settings
 
 
 class Container:

@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 
-from src.adapters.primary.ping_controller import PingController
-from src.adapters.primary.session_controller import SessionController
-from src.adapters.primary.chat_controller import ChatController
-from src.config.dependencies import Container
+from adapters.primary.ping_controller import PingController
+from adapters.primary.session_controller import SessionController
+from adapters.primary.chat_controller import ChatController
+from config.dependencies import Container
 
 
 def create_api_router() -> APIRouter:

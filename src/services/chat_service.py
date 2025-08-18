@@ -1,5 +1,5 @@
-from src.ports.agent_manager import AgentManager
-from src.ports.session_manager import SessionManager
+from ports.agent_manager import AgentManager
+from ports.session_manager import SessionManager
 
 
 class ChatService:

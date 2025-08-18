@@ -2,8 +2,8 @@ from typing import Dict
 
 from fastapi import APIRouter
 
-from src.ports.session_manager import SessionManager
-from src.ports.dtos.responses import SessionResponse
+from ports.session_manager import SessionManager
+from ports.dtos.responses import SessionResponse
 
 
 class SessionNotFoundError(Exception):

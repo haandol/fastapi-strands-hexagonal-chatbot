@@ -1,6 +1,6 @@
 import structlog
 
-from src.config.settings import settings
+from config.settings import settings
 
 
 def setup_logger(name: str = "open-rufus") -> structlog.BoundLogger:

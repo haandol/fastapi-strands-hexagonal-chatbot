@@ -3,7 +3,7 @@ from typing import Optional
 from strands import Agent
 from strands.models.bedrock import BedrockModel
 
-from src.ports.agent_manager import AgentManager
+from ports.agent_manager import AgentManager
 
 
 class StrandsAgentManager(AgentManager):

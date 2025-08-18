@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from src.ports.dtos.responses import HealthResponse
+from ports.dtos.responses import HealthResponse
 
 
 class PingController:
