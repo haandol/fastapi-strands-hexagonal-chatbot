@@ -1,0 +1,32 @@
+from dotenv import load_dotenv
+
+load_dotenv()  # noqa: E402
+
+from fastapi import FastAPI
+
+from src.adapters.primary.router import create_api_router
+from src.adapters.primary.exceptions.session import SessionNotFoundError, session_not_found_handler
+
+
+def create_app() -> FastAPI:
+    app = FastAPI(
+        title="Chatbot API",
+        description="FastAPI Chatbot with Hexagonal Architecture",
+        version="1.0.0",
+    )
+
+    # API routes
+    app.include_router(create_api_router())
+
+    # Exception handlers
+    app.add_exception_handler(SessionNotFoundError, session_not_found_handler)
+
+    return app
+
+
+app = create_app()
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
