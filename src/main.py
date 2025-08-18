@@ -5,7 +5,6 @@ load_dotenv()  # noqa: E402
 from fastapi import FastAPI
 
 from adapters.primary.router import create_api_router
-from adapters.primary.exceptions.session import SessionNotFoundError, session_not_found_handler
 
 
 def create_app() -> FastAPI:
@@ -17,9 +16,6 @@ def create_app() -> FastAPI:
 
     # API routes
     app.include_router(create_api_router())
-
-    # Exception handlers
-    app.add_exception_handler(SessionNotFoundError, session_not_found_handler)
 
     return app
 
