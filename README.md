@@ -13,30 +13,28 @@ src/
 │   │   ├── chat_controller.py
 │   │   ├── session_controller.py
 │   │   ├── ping_controller.py
-│   │   ├── router.py
-│   │   └── exceptions/
+│   │   └── router.py
 │   └── secondary/      # Outbound adapters (Strands implementations)
 │       ├── strands_agent_manager.py
 │       └── strands_session_manager.py
-├── domain/             # Business entities
-│   └── entities/
-│       └── message.py
 ├── ports/              # Interface definitions
 │   ├── agent_manager.py
 │   ├── session_manager.py
 │   ├── chat_service.py
 │   ├── message_repository.py
-│   ├── dtos/
-│   │   ├── requests.py
-│   │   └── responses.py
-│   └── exceptions/
+│   └── dtos/           # Data Transfer Objects
+│       ├── __init__.py
+│       ├── chat.py
+│       ├── session.py
+│       └── common.py
 ├── services/           # Application services
 │   └── chat_service.py
 ├── config/             # Configuration and dependencies
 │   ├── settings.py
 │   └── dependencies.py
-└── utils/              # Utilities
-    └── logger.py
+├── utils/              # Utilities
+│   └── logger.py
+└── main.py             # Application entry point
 ```
 
 ## Features
@@ -93,8 +91,21 @@ ENVIRONMENT="local"
 
 ### Running the Application
 
+#### Local Development
+
 ```bash
 uv run src/main.py
+```
+
+#### Docker
+
+```bash
+# Build and run with Docker Compose
+docker-compose up --build
+
+# Or build and run manually
+docker build -t chatbot .
+docker run -p 8000:8000 -v ~/.aws:/root/.aws chatbot
 ```
 
 The API will be available at `http://localhost:8000`
@@ -161,7 +172,7 @@ DELETE /v1/sessions/{session_id}
 
 - **FastAPI**: Web framework
 - **Strands**: AI agent framework with AWS Bedrock support
-- **Pydantic**: Data validation
+- **Pydantic**: Data validation (included with FastAPI)
 - **Structlog**: Structured logging
 - **Python-dotenv**: Environment variable management
 - **Uvicorn**: ASGI server
