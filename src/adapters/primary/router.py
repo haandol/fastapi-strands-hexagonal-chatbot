@@ -10,7 +10,7 @@ def create_api_router() -> APIRouter:
     container = DIContainer()
 
     ping_controller = PingController()
-    session_controller = SessionController(container.session_manager)
+    session_controller = SessionController(container.session_service)
     chat_controller = ChatController(container.chat_service)
 
     router = APIRouter()

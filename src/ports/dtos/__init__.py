@@ -1,6 +1,6 @@
 # DTOs package exports - 도메인별로 구성
 from .chat import ChatRequest, ChatResponse, ChatStreamChunk, ChatStreamEnd
-from .session import SessionResponse, SessionCreateRequest, SessionUpdateRequest
+from .session import SessionResponse, SessionCreateRequest, SessionDeleteRequest
 from .common import HealthResponse, ErrorResponse, PaginationRequest, PaginationResponse
 
 __all__ = [
@@ -13,7 +13,7 @@ __all__ = [
     # Session domain
     "SessionResponse",
     "SessionCreateRequest",
-    "SessionUpdateRequest",
+    "SessionDeleteRequest",
 
     # Common domain
     "HealthResponse",
