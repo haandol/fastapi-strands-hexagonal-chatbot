@@ -1,0 +1,8 @@
+__pycache__/
+.venv/
+.sessions/
+.devcontainer/
+docker-compose.yml
+*.pyc
+.env
+mcp_config.json
