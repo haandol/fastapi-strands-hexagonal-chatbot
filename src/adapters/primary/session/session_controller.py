@@ -27,5 +27,5 @@ class SessionController:
         return SessionResponse(session_id=session_id)
 
     async def delete_session(self, request: SessionDeleteRequest) -> Dict[str, str]:
-        await self.session_service.delete_session(request.user_id)
+        await self.session_service.delete_session(request.session_id)
         return {"message": "Session deleted"}

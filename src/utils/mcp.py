@@ -22,8 +22,8 @@ def load_mcp_config() -> MCPConfig:
         with open(config_path, "r") as f:
             config_data = json.load(f)
         return MCPConfig.model_validate(config_data)
-    except Exception as e:
-        logger.error("🚨 failed to load MCP config", error=str(e))
+    except Exception:
+        logger.error("🚨 failed to load MCP config", exc_info=True, stack_info=True)
         return MCPConfig()
 
 
@@ -53,10 +53,10 @@ def initialize_mcp_clients(mcp_config: MCPConfig) -> Dict[str, MCPClient]:
             if client:
                 mcp_clients[server_name] = client
 
-        except Exception as e:
+        except Exception:
             logger.error(
                 "🚨 failed to connect MCP client",
-                server_name=server_name, error=str(e),
+                server_name=server_name, exc_info=True, stack_info=True,
             )
     return mcp_clients
 
@@ -70,9 +70,9 @@ def load_mcp_tools(mcp_clients: Dict[str, MCPClient]) -> List[Callable]:
             mcp_tools.extend(client_tools)
             logger.info("⚡️ MCP tools loaded", server_name=server_name,
                         tool_count=len(client_tools))
-        except Exception as e:
+        except Exception:
             logger.error(
                 "🚨 failed to load MCP tools",
-                server_name=server_name, error=str(e),
+                server_name=server_name, exc_info=True, stack_info=True,
             )
     return mcp_tools

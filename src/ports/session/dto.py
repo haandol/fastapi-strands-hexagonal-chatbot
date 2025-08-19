@@ -6,7 +6,7 @@ class SessionCreateRequest(BaseModel):
 
 
 class SessionDeleteRequest(BaseModel):
-    user_id: str
+    session_id: str
 
 
 class SessionResponse(BaseModel):

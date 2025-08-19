@@ -1,4 +1,4 @@
-from typing import Dict, Set
+from typing import Dict
 
 import ulid
 from strands.session.file_session_manager import FileSessionManager
@@ -11,26 +11,24 @@ class StrandsFileSessionAdapter(SessionAdapter):
     def __init__(self, base_path: str = "./.sessions"):
         self.base_path = base_path
         self.sessions: Dict[str, FileSessionManager] = {}
-        self.session_ids: Set[str] = set()
 
+    # TODO: get involved with user_id
     async def create_session(self, user_id: str) -> str:
         session_id = ulid.ulid()
-        self.sessions[user_id] = FileSessionManager(
+        self.sessions[session_id] = FileSessionManager(
             session_id=session_id,
             storage_dir=self.base_path,
         )
-        self.session_ids.add(session_id)
         return session_id
 
-    async def get_session(self, session_id: str) -> str:
-        if session_id in self.session_ids:
-            return session_id
-        logger.error("🚨 session not found", session_id=session_id)
-        raise KeyError(f"🚨 session not found: {session_id}")
+    async def get_session(self, session_id: str) -> FileSessionManager:
+        if session_id not in self.sessions:
+            logger.error("🚨 session not found", session_id=session_id, exc_info=True, stack_info=True)
+            raise KeyError(f"🚨 session not found: {session_id}")
+        return self.sessions[session_id]
 
-    async def delete_session(self, user_id: str) -> None:
-        if user_id not in self.sessions:
+    async def delete_session(self, session_id: str) -> None:
+        if session_id not in self.sessions:
             return
 
-        self.session_ids.remove(user_id)
-        del self.sessions[user_id]
+        del self.sessions[session_id]

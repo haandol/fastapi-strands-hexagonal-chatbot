@@ -4,6 +4,7 @@ import atexit
 
 import boto3
 from strands import Agent
+from strands.session.repository_session_manager import RepositorySessionManager
 from strands.models.bedrock import BedrockModel
 from strands.agent.conversation_manager import SlidingWindowConversationManager
 from strands.tools.mcp import MCPClient, MCPAgentTool
@@ -90,11 +91,13 @@ class StrandsMCPAgentAdapter(AgentAdapter):
         # Cleanup MCP clients
         for client_name, client in self.mcp_clients.items():
             try:
-                logger.info(f"🔌 closing MCP client: {client_name}")
+                logger.info("🔌 closing MCP client", client_name=client_name)
                 client.__exit__(None, None, None)
-            except Exception as e:
+            except Exception:
                 logger.error(
-                    f"🚨 error on closing MCP client {client_name}", error=str(e))
+                    "🚨 error on closing MCP client",
+                    client_name=client_name, exc_info=True, stack_info=True,
+                )
 
         # Clear all collections
         self.mcp_clients.clear()
@@ -121,12 +124,6 @@ class StrandsMCPAgentAdapter(AgentAdapter):
 
         self.mcp_tools = load_mcp_tools(self.mcp_clients)
 
-    def add_tools(self, tools: List[Callable]) -> None:
-        self.local_tools.extend(tools)
-
-    def add_hooks(self, hooks: List[Callable]) -> None:
-        self.hooks.extend(hooks)
-
     def _get_or_create_agent(self, session_id: str) -> Agent:
         """Get existing agent or create new one for session"""
         if session_id in self.agents:
@@ -146,14 +143,18 @@ class StrandsMCPAgentAdapter(AgentAdapter):
                     session_id=session_id)
         return agent
 
-    async def generate_response(self, session_id: str, content: str) -> str:
+    async def generate_response(self, session_manager: RepositorySessionManager, content: str) -> str:
         """Generate response using the agent"""
+        session_id = session_manager.session_id
         agent = self._get_or_create_agent(session_id)
+
         response = await agent.invoke_async(prompt=content)
         content_block = response.message["content"][0]
         return content_block["text"]
 
-    async def generate_response_stream(self, session_id: str, content: str) -> AsyncIterator[Any]:
+    async def generate_response_stream(self, session_manager: RepositorySessionManager, content: str) -> AsyncIterator[Any]:
         """Generate streaming response using the agent"""
+        session_id = session_manager.session_id
         agent = self._get_or_create_agent(session_id)
+
         return agent.stream_async(prompt=content)

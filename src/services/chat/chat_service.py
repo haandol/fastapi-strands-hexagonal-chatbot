@@ -14,13 +14,9 @@ class ChatService:
         self.session_adapter = session_adapter
 
     async def generate_response(self, session_id: str, content: str, stream: bool = False) -> Union[str, AsyncIterator[Any]]:
-        # Ensure session exists
-        try:
-            await self.session_adapter.get_session(session_id)
-        except Exception:
-            await self.session_adapter.create_session(session_id)
+        session_manager = await self.session_adapter.get_session(session_id)
 
         if stream:
-            return await self.agent_adapter.generate_response_stream(session_id, content)
+            return await self.agent_adapter.generate_response_stream(session_manager, content)
         else:
-            return await self.agent_adapter.generate_response(session_id, content)
+            return await self.agent_adapter.generate_response(session_manager, content)
