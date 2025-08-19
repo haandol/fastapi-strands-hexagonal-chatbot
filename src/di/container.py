@@ -36,3 +36,11 @@ class DIContainer:
     @property
     def session_service(self) -> SessionService:
         return self._session_service
+
+    def cleanup(self) -> None:
+        """Cleanup all resources managed by the container"""
+        if hasattr(self._agent_adapter, 'cleanup'):
+            self._agent_adapter.cleanup()
+
+        if hasattr(self._session_adapter, 'cleanup'):
+            self._session_adapter.cleanup()

@@ -19,3 +19,7 @@ class AgentAdapter(ABC):
     def configure_mcp(self, mcp_config: Optional[MCPConfig] = None) -> None:
         """Configure MCP clients and tools"""
         pass
+
+    @abstractmethod
+    def cleanup(self) -> None:
+        pass

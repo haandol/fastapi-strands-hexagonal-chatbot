@@ -32,3 +32,8 @@ class StrandsFileSessionAdapter(SessionAdapter):
             return
 
         del self.sessions[session_id]
+
+    def cleanup(self) -> None:
+        logger.info("🧹 cleaning up session adapter")
+        self.sessions.clear()
+        logger.info("🧹 session adapter cleaned up")

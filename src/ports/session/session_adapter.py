@@ -15,3 +15,7 @@ class SessionAdapter(ABC):
     @abstractmethod
     async def delete_session(self, session_id: str) -> None:
         pass
+
+    @abstractmethod
+    def cleanup(self) -> None:
+        pass

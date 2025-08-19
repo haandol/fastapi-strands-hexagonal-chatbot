@@ -1,6 +1,4 @@
 from typing import AsyncIterator, Any, Optional, List, Callable, Dict
-import signal
-import atexit
 
 import boto3
 from strands import Agent
@@ -62,50 +60,6 @@ class StrandsMCPAgentAdapter(AgentAdapter):
         # Agent instances per session
         self.agents: Dict[str, Agent] = {}
 
-        # Setup cleanup handlers
-        # TODO: resource management on adapters not manage by DIContainer (e.g. MCP clients, database connections)
-        self._setup_cleanup_handlers()
-
-    def _setup_cleanup_handlers(self) -> None:
-        """Setup signal handlers and atexit for cleanup"""
-        # Register signal handlers
-        signal.signal(signal.SIGINT, self._signal_handler)
-        signal.signal(signal.SIGTERM, self._signal_handler)
-
-        # Register atexit handler as backup
-        atexit.register(self.cleanup)
-
-    def _signal_handler(self, signum: int, frame) -> None:
-        """Handle shutdown signals"""
-        signal_name = signal.Signals(signum).name
-        logger.info(f"📡 received signal {signal_name}, initiating cleanup...")
-        self.cleanup()
-        # Re-raise the signal to allow normal termination
-        signal.signal(signum, signal.SIG_DFL)
-        signal.raise_signal(signum)
-
-    def cleanup(self) -> None:
-        """Explicit cleanup method for MCP clients and resources"""
-        logger.info("🧹 cleaning up MCP clients...")
-
-        # Cleanup MCP clients
-        for client_name, client in self.mcp_clients.items():
-            try:
-                logger.info("🔌 closing MCP client", client_name=client_name)
-                client.__exit__(None, None, None)
-            except Exception:
-                logger.error(
-                    "🚨 error on closing MCP client",
-                    client_name=client_name, exc_info=True, stack_info=True,
-                )
-
-        # Clear all collections
-        self.mcp_clients.clear()
-        self.mcp_tools.clear()
-        self.agents.clear()
-
-        logger.info("🧹 MCP clients cleaned up")
-
     def shutdown(self) -> None:
         """Public method to initiate shutdown"""
         logger.info("🛑 shutdown requested")
@@ -158,3 +112,22 @@ class StrandsMCPAgentAdapter(AgentAdapter):
         agent = self._get_or_create_agent(session_id)
 
         return agent.stream_async(prompt=content)
+
+    def cleanup(self) -> None:
+        logger.info("🧹 cleaning up agent adapter")
+
+        for client_name, client in self.mcp_clients.items():
+            try:
+                logger.info("🔌 closing MCP client", client_name=client_name)
+                client.__exit__(None, None, None)
+            except Exception:
+                logger.error(
+                    "🚨 error on closing MCP client",
+                    client_name=client_name, exc_info=True, stack_info=True,
+                )
+
+        self.mcp_clients.clear()
+        self.mcp_tools.clear()
+        self.agents.clear()
+
+        logger.info("🧹 agent adapter cleaned up")
