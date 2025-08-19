@@ -10,28 +10,41 @@ This project implements hexagonal architecture (ports and adapters pattern) with
 src/
 ├── adapters/           # External interfaces
 │   ├── primary/        # Inbound adapters (REST API controllers)
-│   │   ├── chat_controller.py
-│   │   ├── session_controller.py
-│   │   ├── ping_controller.py
+│   │   ├── chat/
+│   │   │   └── chat_controller.py
+│   │   ├── session/
+│   │   │   └── session_controller.py
+│   │   ├── ping/
+│   │   │   └── ping_controller.py
+│   │   ├── __init__.py
 │   │   └── router.py
 │   └── secondary/      # Outbound adapters (Strands implementations)
-│       ├── strands_agent_manager.py
-│       └── strands_session_manager.py
-├── ports/              # Interface definitions
-│   ├── agent_manager.py
-│   ├── session_manager.py
-│   ├── chat_service.py
-│   ├── message_repository.py
-│   └── dtos/           # Data Transfer Objects
-│       ├── __init__.py
-│       ├── chat.py
-│       ├── session.py
-│       └── common.py
+│       ├── chat/
+│       │   └── strands_agent_adapter.py
+│       └── session/
+│           └── strands_file_session_adapter.py
+├── ports/              # Interface definitions (ports)
+│   ├── chat/
+│   │   ├── agent_adapter.py
+│   │   └── dto.py
+│   ├── session/
+│   │   ├── session_adapter.py
+│   │   └── dto.py
+│   └── ping/
+│       ├── ping_adapter.py
+│       └── dto.py
 ├── services/           # Application services
-│   └── chat_service.py
-├── config/             # Configuration and dependencies
-│   ├── settings.py
-│   └── dependencies.py
+│   ├── chat/
+│   │   └── chat_service.py
+│   ├── session/
+│   │   └── session_service.py
+│   └── __init__.py
+├── di/                 # Dependency injection
+│   ├── __init__.py
+│   └── container.py
+├── config/             # Configuration
+│   ├── __init__.py
+│   └── app.py
 ├── utils/              # Utilities
 │   └── logger.py
 └── main.py             # Application entry point
@@ -144,9 +157,9 @@ DELETE /v1/sessions/{session_id}
 ### Core Components
 
 - **ChatService**: Orchestrates chat interactions between agents and sessions
-- **AgentManager**: Interface for AI model interactions via Strands
-- **SessionManager**: Interface for conversation persistence
+- **SessionService**: Manages session lifecycle and persistence
 - **Controllers**: Handle HTTP requests and responses
+- **DIContainer**: Manages dependency injection and service wiring
 
 ### Adapters
 
@@ -158,23 +171,22 @@ DELETE /v1/sessions/{session_id}
 
 #### Secondary Adapters (Outbound)
 
-- `StrandsAgentManager`: AWS Bedrock integration via Strands
-- `StrandsSessionManager`: File-based session storage
+- `StrandsAgentAdapter`: AWS Bedrock integration via Strands framework
+- `StrandsFileSessionAdapter`: File-based session storage implementation via Strands framework
 
 ### Ports (Interfaces)
 
-- `AgentManager`: Interface for AI model interactions
-- `SessionManager`: Interface for session persistence
-- `ChatService`: Interface for chat orchestration
-- `MessageRepository`: Interface for message storage
+- `AgentAdapter`: Interface for AI model interactions
+- `SessionAdapter`: Interface for session persistence
+- DTOs: Data transfer objects for each domain (chat, session, ping)
 
 ## Dependencies
 
 - **FastAPI**: Web framework
 - **Strands**: AI agent framework with AWS Bedrock support
-- **Pydantic**: Data validation (included with FastAPI)
 - **Structlog**: Structured logging
 - **Python-dotenv**: Environment variable management
+- **ULID**: Unique identifier generation
 - **Uvicorn**: ASGI server
 
 ## License

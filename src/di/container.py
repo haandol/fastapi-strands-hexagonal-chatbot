@@ -1,13 +1,13 @@
 from services import ChatService, SessionService
 from adapters.secondary.chat import StrandsAgentAdapter
-from adapters.secondary.session import StrandsSessionAdapter
+from adapters.secondary.session import StrandsFileSessionAdapter
 from config import app_config
 
 
 class DIContainer:
     def __init__(self):
         # secondary adapters
-        self._session_adapter = StrandsSessionAdapter()
+        self._session_adapter = StrandsFileSessionAdapter()
         self._agent_adapter = StrandsAgentAdapter(
             model_id=app_config.model_id,
             aws_profile_name=app_config.aws_profile_name,

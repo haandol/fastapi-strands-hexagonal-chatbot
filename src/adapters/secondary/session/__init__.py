@@ -1,4 +1,4 @@
-from .strands_session_adapter import StrandsSessionAdapter
+from .strands_file_session_adapter import StrandsFileSessionAdapter
 
 
-__all__ = ["StrandsSessionAdapter"]
+__all__ = ["StrandsFileSessionAdapter"]

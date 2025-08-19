@@ -7,7 +7,7 @@ from ports.session.session_adapter import SessionAdapter
 from utils.logger import logger
 
 
-class StrandsSessionAdapter(SessionAdapter):
+class StrandsFileSessionAdapter(SessionAdapter):
     def __init__(self, base_path: str = "./.sessions"):
         self.base_path = base_path
         self.sessions: Dict[str, FileSessionManager] = {}
