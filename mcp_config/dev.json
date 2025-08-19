@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "context7": {
+      "transportType": "streamable-http",
+      "disabled": true,
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "aws-knowledge-mcp-server": {
+      "transportType": "streamable-http",
+      "url": "https://knowledge-mcp.global.api.aws"
+    }
+  }
+}

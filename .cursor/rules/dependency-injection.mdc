@@ -1,0 +1,52 @@
+# Dependency Injection Patterns
+
+## DIContainer Implementation
+
+The [DIContainer](mdc:src/di/container.py) manages all service wiring and dependency injection:
+
+### Container Responsibilities
+- **Adapter Creation**: Instantiates secondary adapters with proper configuration
+- **Service Wiring**: Creates services with injected dependencies
+- **Configuration Integration**: Uses [AppConfig](mdc:src/config/app.py) for adapter setup
+- **Lifecycle Management**: Handles adapter initialization and cleanup
+
+### Configuration-driven Adapter Selection
+- **MCP Mode**: Uses [StrandsMCPAgentAdapter](mdc:src/adapters/secondary/chat/strands_mcp_agent_adapter.py)
+- **Session Adapter**: Always uses [StrandsFileSessionAdapter](mdc:src/adapters/secondary/session/strands_file_session_adapter.py)
+
+### Service Creation Pattern
+```python
+# Secondary adapters first
+self._session_adapter = StrandsFileSessionAdapter()
+self._agent_adapter = StrandsMCPAgentAdapter(...)
+
+# Services with injected dependencies
+self._session_service = SessionService(self._session_adapter)
+self._chat_service = ChatService(self._agent_adapter, self._session_adapter)
+```
+
+## Router Integration
+
+The [router.py](mdc:src/adapters/primary/router.py) uses the container to:
+- Create controller instances with injected services
+- Wire up API routes with proper dependency injection
+- Maintain clean separation between HTTP and business logic
+
+## Best Practices
+
+- **Single Container**: Use one container instance per application
+- **Property Access**: Expose services through properties for clean access
+- **Configuration Integration**: Use environment-based configuration for adapter selection
+- **Interface Compliance**: Ensure all adapters implement their respective port interfaces
+- **Lazy Initialization**: Consider lazy loading for expensive resources
+- **Cleanup**: Implement proper resource cleanup in container destructor
+
+## Environment Configuration
+
+The container respects these environment variables:
+- `MODEL_ID`, `AWS_PROFILE_NAME`: AWS Bedrock configuration
+- `MODEL_TEMPERATURE`, `MODEL_MAX_TOKENS`: Model parameters
+description:
+globs:
+alwaysApply: false
+---

@@ -1,0 +1,47 @@
+# Service Layer Implementation Patterns
+
+## Service Responsibilities
+
+Services contain the core business logic and orchestrate between adapters:
+
+### ChatService
+The [ChatService](mdc:src/services/chat/chat_service.py) orchestrates chat interactions:
+- **Session Management**: Ensures sessions exist before processing
+- **Response Generation**: Delegates to agent adapter for AI responses
+- **Streaming Support**: Handles both streaming and non-streaming modes
+- **Error Handling**: Manages session creation failures gracefully
+
+### SessionService
+The [SessionService](mdc:src/services/session/session_service.py) manages session lifecycle:
+- **Session CRUD**: Create, read, update, delete operations
+- **Persistence**: Delegates to session adapter for storage
+- **Validation**: Ensures session data integrity
+
+## Design Principles
+
+1. **Single Responsibility**: Each service has one clear domain focus
+2. **Dependency Injection**: Services receive adapters through constructor
+3. **Interface Segregation**: Services depend on port interfaces, not implementations
+4. **Error Handling**: Graceful handling of adapter failures
+5. **Async Support**: All operations are async for performance
+
+## Implementation Patterns
+
+- Services should be stateless and thread-safe
+- Use dependency injection for all external dependencies
+- Implement proper error handling and logging
+- Support both sync and async operations as needed
+- Keep business logic separate from infrastructure concerns
+- Use DTOs for data transfer between layers
+
+## Best Practices
+
+- Services should not know about HTTP or external service details
+- Delegate infrastructure concerns to adapters
+- Use structured logging for debugging and monitoring
+- Implement proper error boundaries and fallback strategies
+- Keep services focused on business logic only
+description:
+globs:
+alwaysApply: false
+---

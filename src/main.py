@@ -1,3 +1,4 @@
+import os
 from dotenv import load_dotenv
 
 load_dotenv()  # noqa: E402
@@ -22,9 +23,8 @@ def create_app() -> FastAPI:
 app = create_app()
 
 if __name__ == "__main__":
-    import os
     import uvicorn
 
-    port = os.getenv("PORT", 8000)
+    port = int(os.getenv("PORT", 8000))
 
     uvicorn.run(app, host="0.0.0.0", port=port)

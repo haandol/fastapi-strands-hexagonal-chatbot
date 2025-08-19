@@ -1,17 +1,23 @@
 from services import ChatService, SessionService
-from adapters.secondary.chat import StrandsAgentAdapter
+from adapters.secondary.chat import StrandsMCPAgentAdapter
 from adapters.secondary.session import StrandsFileSessionAdapter
+from ports.chat.agent_adapter import AgentAdapter
 from config import app_config
 
 
+# TODO: resource management on DIContainer not manage by adapters (e.g. MCP clients, database connections)
 class DIContainer:
     def __init__(self):
         # secondary adapters
         self._session_adapter = StrandsFileSessionAdapter()
-        self._agent_adapter = StrandsAgentAdapter(
+
+        self._agent_adapter: AgentAdapter = StrandsMCPAgentAdapter(
             model_id=app_config.model_id,
+            max_tokens=app_config.max_tokens,
+            temperature=app_config.temperature,
             aws_profile_name=app_config.aws_profile_name,
         )
+        self._agent_adapter.configure_mcp()
 
         # services
         self._session_service = SessionService(

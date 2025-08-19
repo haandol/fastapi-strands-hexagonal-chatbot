@@ -1,4 +1,4 @@
-from .strands_agent_adapter import StrandsAgentAdapter
+from .strands_mcp_agent_adapter import StrandsMCPAgentAdapter
 
 
-__all__ = ["StrandsAgentAdapter"]
+__all__ = ["StrandsMCPAgentAdapter"]

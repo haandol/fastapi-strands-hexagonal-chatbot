@@ -171,7 +171,7 @@ DELETE /v1/sessions/{session_id}
 
 #### Secondary Adapters (Outbound)
 
-- `StrandsAgentAdapter`: AWS Bedrock integration via Strands framework
+- `StrandsMCPAgentAdapter`: AWS Bedrock and MCP integration via Strands framework
 - `StrandsFileSessionAdapter`: File-based session storage implementation via Strands framework
 
 ### Ports (Interfaces)

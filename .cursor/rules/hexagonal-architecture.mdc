@@ -1,0 +1,56 @@
+# Hexagonal Architecture (Ports and Adapters) Implementation Guide
+
+This project follows hexagonal architecture principles with clear separation between domain logic and external concerns.
+
+## Project Structure
+
+The main entry point is [src/main.py](mdc:src/main.py), which creates the FastAPI application and includes routers from [src/adapters/primary/router.py](mdc:src/adapters/primary/router.py).
+
+### Core Architecture Layers
+
+1. **Ports (Interfaces)** - `src/ports/`
+   - Define contracts for external dependencies
+   - [AgentAdapter](mdc:src/ports/chat/agent_adapter.py) - Interface for AI model interactions
+   - [SessionAdapter](mdc:src/ports/session/session_adapter.py) - Interface for session persistence
+
+2. **Services (Domain Logic)** - `src/services/`
+   - Contain business logic and orchestration
+   - [ChatService](mdc:src/services/chat/chat_service.py) - Orchestrates chat interactions
+   - [SessionService](mdc:src/services/session/session_service.py) - Manages session lifecycle
+
+3. **Primary Adapters (Inbound)** - `src/adapters/primary/`
+   - Handle external requests (REST API controllers)
+   - [ChatController](mdc:src/adapters/primary/chat/chat_controller.py) - REST API for chat
+   - [SessionController](mdc:src/adapters/primary/session/session_controller.py) - REST API for sessions
+   - [PingController](mdc:src/adapters/primary/ping/ping_controller.py) - Health check
+
+4. **Secondary Adapters (Outbound)** - `src/adapters/secondary/`
+   - Implement external service integrations
+   - [StrandsMCPAgentAdapter](mdc:src/adapters/secondary/chat/strands_mcp_agent_adapter.py) - AWS Bedrock via Strands with MCP
+   - [StrandsFileSessionAdapter](mdc:src/adapters/secondary/session/strands_file_session_adapter.py) - File-based session storage
+
+5. **Dependency Injection** - `src/di/`
+   - [DIContainer](mdc:src/di/container.py) - Manages service wiring and dependency injection
+
+6. **Configuration** - `src/config/`
+   - [AppConfig](mdc:src/config/app.py) - Centralized configuration management
+
+## Key Principles
+
+- **Dependency Inversion**: Services depend on port interfaces, not concrete implementations
+- **Single Responsibility**: Each component has one clear purpose
+- **Interface Segregation**: Ports define minimal, focused contracts
+- **Open/Closed**: New adapters can be added without modifying existing code
+- **Dependency Injection**: All dependencies are injected through the DI container
+
+## Implementation Patterns
+
+- Use abstract base classes (ABC) for all ports
+- Implement adapters that conform to port interfaces
+- Services orchestrate between adapters but don't know implementation details
+- Controllers handle HTTP concerns and delegate to services
+- Configuration is centralized and environment-driven
+description:
+globs:
+alwaysApply: false
+---

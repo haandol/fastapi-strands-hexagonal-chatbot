@@ -1,0 +1,40 @@
+# Strands and MCP Integration Patterns
+
+## Agent Adapter Implementation
+
+The [StrandsMCPAgentAdapter](mdc:src/adapters/secondary/chat/strands_mcp_agent_adapter.py) implements the [AgentAdapter](mdc:src/ports/chat/agent_adapter.py) interface and provides:
+
+### Key Features
+- **AWS Bedrock Integration**: Uses Strands framework with Claude models
+- **MCP Support**: Model Context Protocol for tool integration
+- **Session-based Agents**: Each chat session gets its own agent instance
+- **Streaming Support**: Both streaming and non-streaming response modes
+- **Tool Management**: Dynamic tool and hook registration
+
+### Configuration
+- Model configuration via environment variables in [src/config/app.py](mdc:src/config/app.py)
+- MCP clients initialized in `configure_mcp()` method
+- Agent instances created per session in `_get_or_create_agent()`
+
+### MCP Integration
+- MCP clients loaded from configuration files
+- Tools automatically registered with agents
+- Proper cleanup in destructor method
+- Support for both MCP and local tools
+
+### Best Practices
+- Always implement the `AgentAdapter` interface contract
+- Handle MCP client lifecycle properly (connect/disconnect)
+- Use structured logging for debugging
+- Implement proper error handling for AWS/Bedrock operations
+- Support both streaming and non-streaming modes
+- Clean up resources in destructor methods
+
+### Environment Configuration
+- `MODEL_ID`: AWS Bedrock model identifier
+- `AWS_PROFILE_NAME`: AWS credentials profile
+- `MODEL_TEMPERATURE` and `MODEL_MAX_TOKENS`: Model parameters
+description:
+globs:
+alwaysApply: false
+---

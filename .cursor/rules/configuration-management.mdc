@@ -1,0 +1,55 @@
+# Configuration Management Patterns
+
+## Centralized Configuration
+
+The application uses [src/config/app.py](mdc:src/config/app.py) for centralized configuration management:
+
+### Configuration Structure
+- **Environment Variables**: All configuration sourced from environment variables
+- **Type Safety**: Uses dataclasses for structured configuration
+- **Validation**: Required fields are asserted at startup
+- **Defaults**: Sensible defaults for optional configuration
+
+### Key Configuration Areas
+
+#### LLM Configuration
+- `MODEL_ID`: AWS Bedrock model identifier (required)
+- `AWS_PROFILE_NAME`: AWS credentials profile (optional)
+- `MODEL_TEMPERATURE`: Model temperature parameter (default: 0.3)
+- `MODEL_MAX_TOKENS`: Maximum tokens for responses (default: 2048)
+
+#### Environment Configuration
+- `ENVIRONMENT`: Deployment environment (required)
+- `PORT`: Application port (default: 8000)
+
+### Environment File Structure
+- `env/local.env`: Local development configuration
+- `.env`: Runtime environment configuration (gitignored)
+- Environment-specific configurations in `env/` directory
+
+### Configuration Usage
+- Import `app_config` from [src/config/app.py](mdc:src/config/app.py)
+- Access configuration values as typed properties
+- Configuration is validated at application startup
+- Environment variables are loaded via python-dotenv
+
+### Best Practices
+- **Centralized**: All configuration in one place
+- **Type Safety**: Use dataclasses for configuration objects
+- **Validation**: Assert required values at startup
+- **Defaults**: Provide sensible defaults for optional values
+- **Environment Separation**: Use different configs for different environments
+- **Security**: Never commit sensitive values to version control
+
+### Example Usage
+```python
+from config import app_config
+
+# Access typed configuration
+model_id = app_config.model_id
+temperature = app_config.temperature
+```
+description:
+globs:
+alwaysApply: false
+---

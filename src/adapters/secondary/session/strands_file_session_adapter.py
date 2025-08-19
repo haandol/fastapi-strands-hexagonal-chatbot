@@ -25,12 +25,11 @@ class StrandsFileSessionAdapter(SessionAdapter):
     async def get_session(self, session_id: str) -> str:
         if session_id in self.session_ids:
             return session_id
-        logger.error("session not found", session_id=session_id)
-        raise KeyError(f"session not found: {session_id}")
+        logger.error("🚨 session not found", session_id=session_id)
+        raise KeyError(f"🚨 session not found: {session_id}")
 
     async def delete_session(self, user_id: str) -> None:
         if user_id not in self.sessions:
-            logger.warn("session not found", user_id=user_id)
             return
 
         self.session_ids.remove(user_id)

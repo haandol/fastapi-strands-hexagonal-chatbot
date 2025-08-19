@@ -11,18 +11,19 @@ ENV UV_LINK_MODE=copy
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Copy uv files
-COPY pyproject.toml uv.lock ./
+# copy uv files
+COPY pyproject.toml uv.lock /app/
 
-# Install dependencies
+# install dependencies
 RUN uv sync --frozen --no-cache
 
-# Copy environment variables
-COPY env/local.env ./.env
+# copy config files
+COPY env/dev.env /app/.env
+COPY mcp_config/dev.json /app/mcp_config.json
 
 COPY ./src /app
 
-# Use dumb-init to handle signals
+# use dumb-init to handle signals
 ENTRYPOINT ["dumb-init", "--"]
 
 EXPOSE 8000
