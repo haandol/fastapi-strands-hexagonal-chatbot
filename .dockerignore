@@ -2,6 +2,7 @@ __pycache__/
 .venv/
 .sessions/
 .devcontainer/
+Dockerfile
 docker-compose.yml
 *.pyc
 .env
