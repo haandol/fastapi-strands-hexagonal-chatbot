@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "context7": {
+      "transportType": "stdio",
+      "disabled": false,
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "autoApprove": []
+    },
+    "aws-knowledge-mcp-server": {
+      "transportType": "streamable-http",
+      "disabled": false,
+      "url": "https://knowledge-mcp.global.api.aws"
+    }
+  }
+}
