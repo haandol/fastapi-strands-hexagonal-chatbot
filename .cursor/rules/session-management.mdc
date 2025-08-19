@@ -1,0 +1,151 @@
+# Session Management Patterns
+
+This project uses RepositorySessionManager for consistent session lifecycle management across the application.
+
+## RepositorySessionManager Integration
+
+### Interface Contract
+All session-aware components should use RepositorySessionManager:
+
+```python
+from strands.session.repository_session_manager import RepositorySessionManager
+
+class AgentAdapter(ABC):
+    @abstractmethod
+    async def generate_response(self, session_manager: RepositorySessionManager, content: str) -> str:
+        pass
+
+    @abstractmethod
+    async def generate_response_stream(self, session_manager: RepositorySessionManager, content: str) -> AsyncIterator[Any]:
+        pass
+```
+
+### Session-Based Resource Management
+Implement session-specific resource instances:
+
+```python
+class StrandsMCPAgentAdapter(AgentAdapter):
+    def __init__(self):
+        # ... initialization ...
+        self.agents: Dict[str, Agent] = {}  # Session-based agent instances
+    
+    def _get_or_create_agent(self, session_id: str) -> Agent:
+        """Get existing agent or create new one for session"""
+        if session_id in self.agents:
+            logger.info("🔄 reusing existing agent for session", session_id=session_id)
+            return self.agents[session_id]
+        
+        agent = Agent(
+            model=self.model,
+            conversation_manager=self.conversation_manager,
+            system_prompt=self.system_prompt,
+            tools=self.mcp_tools + self.local_tools,
+            hooks=self.hooks,
+        )
+        self.agents[session_id] = agent
+        logger.info("🤖 StrandsAgent created for session", session_id=session_id)
+        return agent
+    
+    async def generate_response(self, session_manager: RepositorySessionManager, content: str) -> str:
+        """Generate response using the agent"""
+        session_id = session_manager.session_id
+        agent = self._get_or_create_agent(session_id)
+        
+        response = await agent.invoke_async(prompt=content)
+        content_block = response.message["content"][0]
+        return content_block["text"]
+```
+
+## Best Practices
+
+### 1. Session ID Management
+- Always extract session_id from RepositorySessionManager
+- Use session_id as key for session-specific resources
+- Log session operations with session_id context
+
+### 2. Resource Lifecycle
+- Create session-specific resources on first use
+- Reuse existing resources for same session
+- Clean up session resources when session ends
+- Track all session resources in collections
+
+### 3. Error Handling
+- Handle session-specific errors gracefully
+- Log errors with session context
+- Don't let session errors affect other sessions
+
+### 4. Performance Optimization
+- Cache session-specific resources
+- Implement lazy loading for session resources
+- Clean up unused session resources periodically
+
+## Common Patterns
+
+### Session-Aware Service Pattern
+```python
+class ChatService:
+    def __init__(self, agent_adapter: AgentAdapter):
+        self.agent_adapter = agent_adapter
+    
+    async def process_message(self, session_manager: RepositorySessionManager, message: str) -> str:
+        """Process chat message with session context"""
+        try:
+            response = await self.agent_adapter.generate_response(session_manager, message)
+            logger.info("💬 message processed", session_id=session_manager.session_id)
+            return response
+        except Exception as e:
+            logger.error("🚨 error processing message", 
+                        session_id=session_manager.session_id, error=str(e))
+            raise
+```
+
+### Session Cleanup Pattern
+```python
+def cleanup_session(self, session_id: str) -> None:
+    """Clean up session-specific resources"""
+    if session_id in self.agents:
+        try:
+            # Clean up session-specific agent
+            del self.agents[session_id]
+            logger.info("🧹 session agent cleaned up", session_id=session_id)
+        except Exception as e:
+            logger.error("🚨 error cleaning up session agent", 
+                        session_id=session_id, error=str(e))
+```
+
+### Session Validation Pattern
+```python
+def validate_session(self, session_manager: RepositorySessionManager) -> bool:
+    """Validate session state"""
+    if not session_manager.session_id:
+        logger.error("🚨 invalid session: missing session_id")
+        return False
+    
+    if not session_manager.is_active():
+        logger.error("🚨 invalid session: session not active", 
+                    session_id=session_manager.session_id)
+        return False
+    
+    return True
+```
+
+## Integration with Hexagonal Architecture
+
+### Port Interface Design
+- Use RepositorySessionManager in port interfaces
+- Keep session management concerns in adapters
+- Services orchestrate session-aware operations
+
+### Adapter Implementation
+- Implement session-specific resource management
+- Handle session lifecycle events
+- Provide session cleanup methods
+
+### Service Layer
+- Pass session context through service methods
+- Handle session-specific business logic
+- Coordinate between session-aware adapters
+description:
+globs:
+alwaysApply: false
+---

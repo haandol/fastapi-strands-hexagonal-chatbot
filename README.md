@@ -1,6 +1,6 @@
 # FastAPI Strands Hexagonal Chatbot
 
-A FastAPI-based chatbot application built with hexagonal architecture and powered by AWS Bedrock through the Strands framework.
+A FastAPI-based chatbot application built with hexagonal architecture and powered by AWS Bedrock through the Strands framework with MCP (Model Context Protocol) support.
 
 ## Architecture
 
@@ -20,9 +20,12 @@ src/
 │   │   └── router.py
 │   └── secondary/      # Outbound adapters (Strands implementations)
 │       ├── chat/
-│       │   └── strands_agent_adapter.py
+│       │   ├── strands_mcp_agent_adapter.py
+│       │   ├── prompt.py
+│       │   └── __init__.py
 │       └── session/
-│           └── strands_file_session_adapter.py
+│           ├── strands_file_session_adapter.py
+│           └── __init__.py
 ├── ports/              # Interface definitions (ports)
 │   ├── chat/
 │   │   ├── agent_adapter.py
@@ -30,9 +33,12 @@ src/
 │   ├── session/
 │   │   ├── session_adapter.py
 │   │   └── dto.py
-│   └── ping/
-│       ├── ping_adapter.py
-│       └── dto.py
+│   ├── ping/
+│   │   ├── ping_adapter.py
+│   │   └── dto.py
+│   └── mcp/
+│       ├── config.py
+│       └── __init__.py
 ├── services/           # Application services
 │   ├── chat/
 │   │   └── chat_service.py
@@ -46,7 +52,8 @@ src/
 │   ├── __init__.py
 │   └── app.py
 ├── utils/              # Utilities
-│   └── logger.py
+│   ├── logger.py
+│   └── mcp.py
 └── main.py             # Application entry point
 ```
 
@@ -55,6 +62,7 @@ src/
 - **RESTful API** with FastAPI
 - **Hexagonal Architecture** for clean separation of concerns
 - **AWS Bedrock Integration** via Strands framework
+- **MCP (Model Context Protocol) Support** for extensible tool integration
 - **Session Management** with file-based persistence
 - **Streaming Support** for real-time chat responses
 - **Health Check** endpoint
@@ -92,6 +100,8 @@ cp env/local.env .env
 
 ### Configuration
 
+#### Environment Variables
+
 Create a `.env` file with the following variables:
 
 ```env
@@ -101,6 +111,30 @@ MODEL_MAX_TOKENS="2048"
 # AWS_PROFILE_NAME="default"  # Optional
 ENVIRONMENT="local"
 ```
+
+#### MCP Configuration
+
+Configure MCP servers in `mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "aws-knowledge-mcp-server": {
+      "transportType": "streamable-http",
+      "url": "https://knowledge-mcp.global.api.aws"
+    },
+    "context7": {
+      "transportType": "streamable-http",
+      "disabled": true,
+      "url": "https://mcp.context7.com/mcp"
+    }
+  }
+}
+```
+
+Environment-specific configurations are also supported in `mcp_config/`:
+- `mcp_config/local.json`
+- `mcp_config/dev.json`
 
 ### Running the Application
 
@@ -176,14 +210,26 @@ DELETE /v1/sessions/{session_id}
 
 ### Ports (Interfaces)
 
-- `AgentAdapter`: Interface for AI model interactions
+- `AgentAdapter`: Interface for AI model interactions with MCP support
 - `SessionAdapter`: Interface for session persistence
 - DTOs: Data transfer objects for each domain (chat, session, ping)
+- MCP Configuration: Models for MCP server configuration
+
+### MCP Integration
+
+The application supports MCP (Model Context Protocol) through the `StrandsMCPAgentAdapter`, which:
+
+- Loads MCP server configurations from `mcp_config.json` or environment-specific files
+- Initializes MCP clients for configured servers
+- Provides tools from MCP servers to the AI agent
+- Supports both `stdio` and `streamable-http` transport types
+
+For detailed MCP usage, see [docs/MCP_USAGE.md](docs/MCP_USAGE.md).
 
 ## Dependencies
 
 - **FastAPI**: Web framework
-- **Strands**: AI agent framework with AWS Bedrock support
+- **Strands**: AI agent framework with AWS Bedrock and MCP support
 - **Structlog**: Structured logging
 - **Python-dotenv**: Environment variable management
 - **ULID**: Unique identifier generation

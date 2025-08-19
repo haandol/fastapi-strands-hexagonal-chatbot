@@ -1,6 +1,6 @@
 # Hexagonal Architecture (Ports and Adapters) Implementation Guide
 
-This project follows hexagonal architecture principles with clear separation between domain logic and external concerns.
+This project follows hexagonal architecture principles with clear separation between domain logic and external concerns, including proper resource management.
 
 ## Project Structure
 
@@ -10,8 +10,9 @@ The main entry point is [src/main.py](mdc:src/main.py), which creates the FastAP
 
 1. **Ports (Interfaces)** - `src/ports/`
    - Define contracts for external dependencies
-   - [AgentAdapter](mdc:src/ports/chat/agent_adapter.py) - Interface for AI model interactions
+   - [AgentAdapter](mdc:src/ports/chat/agent_adapter.py) - Interface for AI model interactions with RepositorySessionManager
    - [SessionAdapter](mdc:src/ports/session/session_adapter.py) - Interface for session persistence
+   - [MCPConfig](mdc:src/ports/mcp/config.py) - MCP configuration models
 
 2. **Services (Domain Logic)** - `src/services/`
    - Contain business logic and orchestration
@@ -25,8 +26,8 @@ The main entry point is [src/main.py](mdc:src/main.py), which creates the FastAP
    - [PingController](mdc:src/adapters/primary/ping/ping_controller.py) - Health check
 
 4. **Secondary Adapters (Outbound)** - `src/adapters/secondary/`
-   - Implement external service integrations
-   - [StrandsMCPAgentAdapter](mdc:src/adapters/secondary/chat/strands_mcp_agent_adapter.py) - AWS Bedrock via Strands with MCP
+   - Implement external service integrations with proper resource management
+   - [StrandsMCPAgentAdapter](mdc:src/adapters/secondary/chat/strands_mcp_agent_adapter.py) - AWS Bedrock via Strands with MCP and signal-based cleanup
    - [StrandsFileSessionAdapter](mdc:src/adapters/secondary/session/strands_file_session_adapter.py) - File-based session storage
 
 5. **Dependency Injection** - `src/di/`
@@ -35,6 +36,10 @@ The main entry point is [src/main.py](mdc:src/main.py), which creates the FastAP
 6. **Configuration** - `src/config/`
    - [AppConfig](mdc:src/config/app.py) - Centralized configuration management
 
+7. **Utilities** - `src/utils/`
+   - [logger](mdc:src/utils/logger.py) - Structured logging utilities
+   - [mcp](mdc:src/utils/mcp.py) - MCP client management utilities
+
 ## Key Principles
 
 - **Dependency Inversion**: Services depend on port interfaces, not concrete implementations
@@ -42,15 +47,49 @@ The main entry point is [src/main.py](mdc:src/main.py), which creates the FastAP
 - **Interface Segregation**: Ports define minimal, focused contracts
 - **Open/Closed**: New adapters can be added without modifying existing code
 - **Dependency Injection**: All dependencies are injected through the DI container
+- **Resource Management**: Proper cleanup and signal handling for external resources
 
 ## Implementation Patterns
+
+### Port Interface Pattern
+```python
+from abc import ABC, abstractmethod
+from typing import AsyncIterator, Any, Optional
+from strands.session.repository_session_manager import RepositorySessionManager
+
+class AgentAdapter(ABC):
+    @abstractmethod
+    async def generate_response(self, session_manager: RepositorySessionManager, content: str) -> str:
+        pass
+
+    @abstractmethod
+    async def generate_response_stream(self, session_manager: RepositorySessionManager, content: str) -> AsyncIterator[Any]:
+        pass
+
+    @abstractmethod
+    def configure_mcp(self, mcp_config: Optional[MCPConfig] = None) -> None:
+        pass
+```
+
+### Resource Management Pattern
+- Use signal handlers for graceful shutdown
+- Implement explicit cleanup methods
+- Register cleanup handlers in `__init__`
+- Use structured logging with proper context
+
+### Session Management Pattern
+- Use RepositorySessionManager for session lifecycle
+- Session-based agent instances
+- Proper session ID management
+
+## Best Practices
 
 - Use abstract base classes (ABC) for all ports
 - Implement adapters that conform to port interfaces
 - Services orchestrate between adapters but don't know implementation details
 - Controllers handle HTTP concerns and delegate to services
 - Configuration is centralized and environment-driven
-description:
-globs:
-alwaysApply: false
----
+- Implement proper resource cleanup with signal handling
+- Use structured logging with context information
+- Handle external service connections properly (MCP clients, database connections)
+- Support both streaming and non-streaming operations where applicable

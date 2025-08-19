@@ -1,0 +1,149 @@
+# Resource Management and Cleanup Patterns
+
+This project implements proper resource management patterns for external dependencies like MCP clients, database connections, and AWS services.
+
+## Signal-Based Cleanup Pattern
+
+### Implementation in Adapters
+External resource adapters should implement signal-based cleanup:
+
+```python
+import signal
+import atexit
+from utils.logger import logger
+
+class ExternalResourceAdapter:
+    def __init__(self):
+        # ... initialization ...
+        self._setup_cleanup_handlers()
+    
+    def _setup_cleanup_handlers(self) -> None:
+        """Setup signal handlers and atexit for cleanup"""
+        signal.signal(signal.SIGINT, self._signal_handler)
+        signal.signal(signal.SIGTERM, self._signal_handler)
+        atexit.register(self.cleanup)
+    
+    def _signal_handler(self, signum: int, frame) -> None:
+        """Handle shutdown signals"""
+        signal_name = signal.Signals(signum).name
+        logger.info(f"📡 received signal {signal_name}, initiating cleanup...")
+        self.cleanup()
+        # Re-raise the signal to allow normal termination
+        signal.signal(signum, signal.SIG_DFL)
+        signal.raise_signal(signum)
+    
+    def cleanup(self) -> None:
+        """Explicit cleanup method for external resources"""
+        logger.info("🧹 cleaning up external resources...")
+        # Implement resource cleanup logic
+        logger.info("🧹 external resources cleaned up")
+    
+    def shutdown(self) -> None:
+        """Public method to initiate shutdown"""
+        logger.info("🛑 shutdown requested")
+        self.cleanup()
+```
+
+## MCP Client Management
+
+### Connection Lifecycle
+MCP clients require proper connection management:
+
+```python
+def configure_mcp(self, mcp_config: Optional[MCPConfig] = None) -> None:
+    """Configure MCP clients and tools"""
+    if mcp_config is None:
+        mcp_config = load_mcp_config()
+    
+    self.mcp_clients = initialize_mcp_clients(mcp_config)
+    
+    for server_name, client in self.mcp_clients.items():
+        client.__enter__()  # Establish connection
+        logger.info("⚡️ MCP client connected", server_name=server_name)
+    
+    self.mcp_tools = load_mcp_tools(self.mcp_clients)
+
+def cleanup(self) -> None:
+    """Cleanup MCP clients"""
+    for client_name, client in self.mcp_clients.items():
+        try:
+            logger.info("🔌 closing MCP client", client_name=client_name)
+            client.__exit__(None, None, None)  # Close connection
+        except Exception:
+            logger.error(
+                "🚨 error on closing MCP client",
+                client_name=client_name, exc_info=True, stack_info=True,
+            )
+    
+    self.mcp_clients.clear()
+    self.mcp_tools.clear()
+```
+
+## Best Practices
+
+### 1. Signal Handling
+- Always register signal handlers in `__init__`
+- Handle both SIGINT and SIGTERM signals
+- Use atexit as backup cleanup mechanism
+- Re-raise signals after cleanup for proper termination
+
+### 2. Resource Cleanup
+- Implement explicit `cleanup()` method
+- Provide public `shutdown()` method for controlled termination
+- Use structured logging with proper context
+- Handle exceptions gracefully during cleanup
+
+### 3. Connection Management
+- Use context manager pattern (`__enter__`/`__exit__`) for connections
+- Track all active connections in collections
+- Clear collections after cleanup
+- Log connection lifecycle events
+
+### 4. Error Handling
+- Use structured logging with `exc_info=True` and `stack_info=True`
+- Don't let cleanup exceptions prevent other cleanup operations
+- Log specific client/resource names for debugging
+
+### 5. Session Management
+- Use RepositorySessionManager for session lifecycle
+- Create resource instances per session when needed
+- Clean up session-specific resources properly
+
+## Common Patterns
+
+### AWS Service Cleanup
+```python
+def cleanup(self) -> None:
+    """Cleanup AWS service connections"""
+    if hasattr(self, 'boto_session'):
+        # AWS sessions are generally stateless, but log cleanup
+        logger.info("🔌 cleaning up AWS session")
+```
+
+### Database Connection Cleanup
+```python
+def cleanup(self) -> None:
+    """Cleanup database connections"""
+    for connection in self.db_connections:
+        try:
+            connection.close()
+            logger.info("🔌 database connection closed")
+        except Exception as e:
+            logger.error("🚨 error closing database connection", error=str(e))
+```
+
+### File Handle Cleanup
+```python
+def cleanup(self) -> None:
+    """Cleanup file handles"""
+    for file_handle in self.file_handles:
+        try:
+            file_handle.close()
+            logger.info("📁 file handle closed")
+        except Exception as e:
+            logger.error("🚨 error closing file handle", error=str(e))
+```
+description:
+globs:
+alwaysApply: false
+---

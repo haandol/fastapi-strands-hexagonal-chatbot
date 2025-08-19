@@ -1,53 +1,68 @@
 # MCP (Model Context Protocol) Support
 
-This application supports MCP integration through the `StrandsMCPAgentAdapter`, which extends the basic agent functionality with MCP client capabilities while maintaining the hexagonal architecture.
+This application supports MCP integration through the `StrandsMCPAgentAdapter`, which provides MCP client capabilities while maintaining the hexagonal architecture.
 
 ## Architecture
 
-The MCP support is implemented as an alternative adapter that can be swapped in without changing the core business logic:
+The MCP support is implemented in the secondary adapter layer:
 
 ```
-ports/chat/
-├── agent_adapter.py          # Interface with MCP methods
-├── mcp_config.py            # MCP configuration models
-└── dto.py
+ports/
+├── chat/
+│   └── agent_adapter.py      # Interface with MCP methods
+├── mcp/
+│   ├── config.py            # MCP configuration models
+│   └── __init__.py
+└── session/
 
 adapters/secondary/chat/
-├── strands_agent_adapter.py     # Basic adapter (no MCP)
-└── strands_mcp_agent_adapter.py # MCP-enabled adapter
+├── strands_mcp_agent_adapter.py  # MCP-enabled adapter
+├── prompt.py
+└── __init__.py
+
+utils/
+└── mcp.py                   # MCP utility functions
 ```
 
 ## Configuration
 
-### 1. Create MCP Configuration
+### MCP Configuration File
 
 Create `mcp_config.json` in the project root:
 
 ```json
 {
   "mcpServers": {
-    "filesystem": {
-      "transportType": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allowed/directory"],
-      "env": {
-        "MCP_TRANSPORT": "stdio"
-      }
+    "aws-knowledge-mcp-server": {
+      "transportType": "streamable-http",
+      "url": "https://knowledge-mcp.global.api.aws"
     },
-    "brave-search": {
-      "transportType": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
-      "env": {
-        "BRAVE_API_KEY": "your-api-key-here",
-        "MCP_TRANSPORT": "stdio"
-      }
+    "context7": {
+      "transportType": "streamable-http",
+      "disabled": true,
+      "url": "https://mcp.context7.com/mcp"
     }
   }
 }
 ```
 
+### Environment-Specific Configuration
+
+You can also create environment-specific configurations:
+- `mcp_config/local.json`
+- `mcp_config/dev.json`
+
 ## Supported Transport Types
+
+### streamable-http
+For HTTP-based MCP servers:
+```json
+{
+  "transportType": "streamable-http",
+  "url": "https://mcp.example.com/mcp",
+  "disabled": false
+}
+```
 
 ### stdio
 For command-line MCP servers:
@@ -55,70 +70,91 @@ For command-line MCP servers:
 {
   "transportType": "stdio",
   "command": "npx",
-  "args": ["-y", "@modelcontextprotocol/server-name"],
+  "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/directory"],
   "env": {
     "MCP_TRANSPORT": "stdio"
-  }
+  },
+  "disabled": false
 }
 ```
 
-### streamable-http
-For HTTP-based MCP servers:
-```json
-{
-  "transportType": "streamable-http",
-  "url": "http://localhost:3000/mcp"
-}
-```
+## How It Works
+
+The `StrandsMCPAgentAdapter` automatically:
+
+1. **Loads Configuration**: Reads MCP server configurations from `mcp_config.json`
+2. **Initializes Clients**: Creates MCP clients for each enabled server
+3. **Connects to Servers**: Establishes connections using the specified transport type
+4. **Loads Tools**: Retrieves available tools from connected MCP servers
+5. **Creates Agents**: Instantiates agents per session with MCP tools available
+
+## Key Features
+
+### Session-Based Agents
+- Each chat session gets its own `Agent` instance
+- MCP tools are shared across all sessions
+- Agents are cached and reused for the same session
+
+### Resource Management
+- Automatic cleanup of MCP clients on shutdown
+- Signal handlers for graceful termination (SIGINT, SIGTERM)
+- Connection pooling and reuse
+
+### Error Handling
+- Failed MCP server connections are logged but don't prevent startup
+- Individual tool failures are handled gracefully
+- Disabled servers are automatically skipped
 
 ## Usage
 
-When MCP is enabled, the agent will automatically:
+MCP integration is transparent to the API layer. Once configured, MCP tools are automatically available to the AI agent during chat interactions.
 
-1. Load MCP configuration from `mcp_config.json`
-2. Initialize MCP clients for each configured server
-3. Load available tools from connected servers
-4. Make tools available to the AI agent
+### Example Chat Request
+```http
+POST /v1/invocations
+Content-Type: application/json
 
-The MCP tools are seamlessly integrated with the existing chat functionality - no API changes required.
+{
+  "message": "Search for AWS Lambda best practices",
+  "session_id": "session_123",
+  "stream": false
+}
+```
+
+The agent will automatically use available MCP tools (like AWS knowledge search) to provide enhanced responses.
 
 ## Extensibility
 
-The architecture allows for easy extension:
-
 ### Adding Custom Tools
+The adapter supports adding local tools alongside MCP tools:
+
 ```python
-# In your DI container setup
-container = DIContainer(use_mcp=True)
-agent_adapter = container.agent_adapter
-
-# Add custom tools
-agent_adapter.add_tools([my_custom_tool])
-
-# Add hooks
-agent_adapter.add_hooks([my_custom_hook])
+# In the adapter
+self.local_tools: List[Callable] = []  # Add custom tools here
 ```
 
-### Custom MCP Configuration
+### Adding Hooks
+Custom hooks can be added for request/response processing:
+
 ```python
-from ports.chat.mcp_config import MCPConfig
-
-# Create custom config
-custom_config = MCPConfig(mcpServers={...})
-
-# Apply to adapter
-agent_adapter.configure_mcp(custom_config)
+# In the adapter  
+self.hooks: List[Callable] = []  # Add custom hooks here
 ```
 
-## Error Handling
+## Troubleshooting
 
-- Failed MCP server connections are logged but don't prevent application startup
-- Individual tool failures are handled gracefully
-- Disabled servers (with `"disabled": true`) are skipped
+### Connection Issues
+- Check MCP server URLs and availability
+- Verify network connectivity for HTTP-based servers
+- Ensure command paths are correct for stdio servers
 
-## Session Management
+### Configuration Issues
+- Validate JSON syntax in configuration files
+- Check that required fields are present
+- Verify environment variables for stdio servers
 
-Each chat session gets its own agent instance with shared MCP tools, ensuring:
-- Session isolation
-- Efficient resource usage
-- Consistent tool availability across sessions
+### Resource Cleanup
+The adapter includes comprehensive cleanup mechanisms:
+- Signal handlers for graceful shutdown
+- Automatic resource cleanup on exit
+- Connection pooling to prevent resource leaks
