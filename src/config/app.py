@@ -19,7 +19,7 @@ assert ENVIRONMENT, "ENVIRONMENT environment variable not set"
 
 
 @dataclass
-class Settings:
+class AppConfig:
     model_id: str
     aws_profile_name: Optional[str]
     temperature: float
@@ -27,7 +27,7 @@ class Settings:
     environment: str
 
 
-settings = Settings(
+app_config = AppConfig(
     model_id=MODEL_ID,
     temperature=MODEL_TEMPERATURE,
     max_tokens=MODEL_MAX_TOKENS,

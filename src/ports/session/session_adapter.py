@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, Any
 
 
-class SessionManager(ABC):
+class SessionAdapter(ABC):
     @abstractmethod
     async def create_session(self, user_id: str) -> str:
         pass

@@ -3,10 +3,10 @@ from typing import AsyncIterator, Any, Optional
 from strands import Agent
 from strands.models.bedrock import BedrockModel
 
-from ports.agent_manager import AgentManager
+from ports.chat.agent_adapter import AgentAdapter
 
 
-class StrandsAgentManager(AgentManager):
+class StrandsAgentAdapter(AgentAdapter):
     def __init__(self, model_id: str, aws_profile_name: Optional[str] = None):
         model = BedrockModel(
             model_id=model_id,

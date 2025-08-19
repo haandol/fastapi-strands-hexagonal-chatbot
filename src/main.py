@@ -4,7 +4,7 @@ load_dotenv()  # noqa: E402
 
 from fastapi import FastAPI
 
-from adapters.primary.router import create_api_router
+from adapters.primary import create_api_router
 
 
 def create_app() -> FastAPI:
@@ -14,7 +14,6 @@ def create_app() -> FastAPI:
         version="1.0.0",
     )
 
-    # API routes
     app.include_router(create_api_router())
 
     return app

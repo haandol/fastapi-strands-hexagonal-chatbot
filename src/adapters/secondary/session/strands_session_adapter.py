@@ -3,11 +3,11 @@ from typing import Dict, Set
 import ulid
 from strands.session.file_session_manager import FileSessionManager
 
-from ports.session_manager import SessionManager
+from ports.session.session_adapter import SessionAdapter
 from utils.logger import logger
 
 
-class StrandsSessionManager(SessionManager):
+class StrandsSessionAdapter(SessionAdapter):
     def __init__(self, base_path: str = "./.sessions"):
         self.base_path = base_path
         self.sessions: Dict[str, FileSessionManager] = {}

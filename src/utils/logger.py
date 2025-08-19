@@ -1,6 +1,6 @@
 import structlog
 
-from config.settings import settings
+from config import app_config
 
 
 def setup_logger(name: str = "open-rufus") -> structlog.BoundLogger:
@@ -23,7 +23,7 @@ def setup_logger(name: str = "open-rufus") -> structlog.BoundLogger:
     ]
 
     # Add different processors for development and production
-    if settings.environment == "local":
+    if app_config.environment == "local":
         # Development: Console output in colored format
         processors.extend(
             [

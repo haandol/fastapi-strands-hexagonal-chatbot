@@ -2,8 +2,8 @@ from typing import Dict
 
 from fastapi import APIRouter
 
-from services.session_service import SessionService
-from ports.dtos import SessionCreateRequest, SessionDeleteRequest, SessionResponse
+from services.session.session_service import SessionService
+from ports.session.dto import SessionCreateRequest, SessionDeleteRequest, SessionResponse
 
 
 class SessionController:

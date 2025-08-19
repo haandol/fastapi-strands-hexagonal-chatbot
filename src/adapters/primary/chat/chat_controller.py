@@ -3,8 +3,8 @@ from typing import AsyncIterator, Any
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 
-from services.chat_service import ChatService
-from ports.dtos import ChatRequest, ChatResponse
+from services.chat.chat_service import ChatService
+from ports.chat.dto import ChatRequest, ChatResponse
 
 
 class ChatController:
