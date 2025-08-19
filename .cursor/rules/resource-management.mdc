@@ -1,3 +1,7 @@
+---
+alwaysApply: false
+---
+
 # Resource Management and Cleanup Patterns
 
 This project implements proper resource management patterns for external dependencies like MCP clients, database connections, and AWS services.
@@ -143,7 +147,3 @@ def cleanup(self) -> None:
         except Exception as e:
             logger.error("🚨 error closing file handle", error=str(e))
 ```
-description:
-globs:
-alwaysApply: false
----

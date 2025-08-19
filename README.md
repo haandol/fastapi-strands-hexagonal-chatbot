@@ -193,7 +193,18 @@ DELETE /v1/sessions/{session_id}
 - **ChatService**: Orchestrates chat interactions between agents and sessions
 - **SessionService**: Manages session lifecycle and persistence
 - **Controllers**: Handle HTTP requests and responses
-- **DIContainer**: Manages dependency injection and service wiring
+- **DIContainer**: Manages dependency injection, service wiring, and resource cleanup
+
+### Dependency Injection
+
+The application uses a centralized DI container that:
+
+- **Initializes Services**: Creates and wires all services and adapters
+- **Manages Resources**: Handles MCP client connections and cleanup
+- **Lifecycle Management**: Integrates with FastAPI's lifespan events for proper startup/shutdown
+- **Automatic Cleanup**: Ensures all resources are properly cleaned up on application shutdown
+
+The DI container is initialized at application startup and provides services to controllers through the router configuration.
 
 ### Adapters
 
@@ -234,6 +245,11 @@ For detailed MCP usage, see [docs/MCP_USAGE.md](docs/MCP_USAGE.md).
 - **Python-dotenv**: Environment variable management
 - **ULID**: Unique identifier generation
 - **Uvicorn**: ASGI server
+
+## Documentation
+
+- [Development Guide](docs/DEVELOPMENT_GUIDE.md) - How to modify and extend the codebase
+- [MCP Usage Guide](docs/MCP_USAGE.md) - Model Context Protocol integration details
 
 ## License
 

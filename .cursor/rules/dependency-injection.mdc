@@ -1,52 +1,135 @@
-# Dependency Injection Patterns
+---
+alwaysApply: true
+description: Dependency Injection Patterns and Container Management
+---
 
-## DIContainer Implementation
+# Dependency Injection
 
-The [DIContainer](mdc:src/di/container.py) manages all service wiring and dependency injection:
+This project uses a custom dependency injection container to manage service dependencies and wiring.
 
-### Container Responsibilities
-- **Adapter Creation**: Instantiates secondary adapters with proper configuration
-- **Service Wiring**: Creates services with injected dependencies
-- **Configuration Integration**: Uses [AppConfig](mdc:src/config/app.py) for adapter setup
-- **Lifecycle Management**: Handles adapter initialization and cleanup
+## Core Components
 
-### Configuration-driven Adapter Selection
-- **MCP Mode**: Uses [StrandsMCPAgentAdapter](mdc:src/adapters/secondary/chat/strands_mcp_agent_adapter.py)
-- **Session Adapter**: Always uses [StrandsFileSessionAdapter](mdc:src/adapters/secondary/session/strands_file_session_adapter.py)
+### DI Container
+- [DIContainer](mdc:src/di/container.py) - Main dependency injection container
+- [container initialization](mdc:src/di/__init__.py) - Container setup and configuration
 
-### Service Creation Pattern
+### Container Lifecycle
+- Initialized in [main.py](mdc:src/main.py) as global instance
+- Services registered during application startup
+- Cleanup performed during application shutdown
+
+## Implementation Patterns
+
+### Container Setup
 ```python
-# Secondary adapters first
-self._session_adapter = StrandsFileSessionAdapter()
-self._agent_adapter = StrandsMCPAgentAdapter(...)
+# Global DI container instance
+di_container: DIContainer = DIContainer()
 
-# Services with injected dependencies
-self._session_service = SessionService(self._session_adapter)
-self._chat_service = ChatService(self._agent_adapter, self._session_adapter)
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    print("🚀 Application started - DI container initialized")
+    yield
+    # Shutdown
+    di_container.cleanup()
+    print("🧹 Application shutdown - resources cleaned up")
 ```
 
-## Router Integration
+### Service Registration
+```python
+class DIContainer:
+    def __init__(self):
+        self._services: Dict[Type, Any] = {}
+        self._setup_services()
 
-The [router.py](mdc:src/adapters/primary/router.py) uses the container to:
-- Create controller instances with injected services
-- Wire up API routes with proper dependency injection
-- Maintain clean separation between HTTP and business logic
+    def _setup_services(self):
+        # Register services
+        self._services[ChatService] = ChatService(
+            self._services[AgentAdapter],
+            self._services[SessionAdapter]
+        )
+```
+
+### Service Resolution
+```python
+def get_service(self, service_type: Type[T]) -> T:
+    if service_type not in self._services:
+        raise ValueError(f"Service {service_type} not registered")
+    return self._services[service_type]
+```
 
 ## Best Practices
 
-- **Single Container**: Use one container instance per application
-- **Property Access**: Expose services through properties for clean access
-- **Configuration Integration**: Use environment-based configuration for adapter selection
-- **Interface Compliance**: Ensure all adapters implement their respective port interfaces
-- **Lazy Initialization**: Consider lazy loading for expensive resources
-- **Cleanup**: Implement proper resource cleanup in container destructor
+- Register all services in the container during initialization
+- Use constructor injection for all dependencies
+- Implement proper cleanup in the container
+- Use type hints for service registration and resolution
+- Keep services stateless where possible
+- Use interfaces (ports) for dependency contracts
+- Implement proper error handling for missing services
+- Use singleton pattern for shared resources
+- Clean up resources during application shutdown
+# Dependency Injection
 
-## Environment Configuration
+This project uses a custom dependency injection container to manage service dependencies and wiring.
 
-The container respects these environment variables:
-- `MODEL_ID`, `AWS_PROFILE_NAME`: AWS Bedrock configuration
-- `MODEL_TEMPERATURE`, `MODEL_MAX_TOKENS`: Model parameters
-description:
-globs:
-alwaysApply: false
----
+## Core Components
+
+### DI Container
+- [DIContainer](mdc:src/di/container.py) - Main dependency injection container
+- [container initialization](mdc:src/di/__init__.py) - Container setup and configuration
+
+### Container Lifecycle
+- Initialized in [main.py](mdc:src/main.py) as global instance
+- Services registered during application startup
+- Cleanup performed during application shutdown
+
+## Implementation Patterns
+
+### Container Setup
+```python
+# Global DI container instance
+di_container: DIContainer = DIContainer()
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    print("🚀 Application started - DI container initialized")
+    yield
+    # Shutdown
+    di_container.cleanup()
+    print("🧹 Application shutdown - resources cleaned up")
+```
+
+### Service Registration
+```python
+class DIContainer:
+    def __init__(self):
+        self._services: Dict[Type, Any] = {}
+        self._setup_services()
+
+    def _setup_services(self):
+        # Register services
+        self._services[ChatService] = ChatService(
+            self._services[AgentAdapter],
+            self._services[SessionAdapter]
+        )
+```
+
+### Service Resolution
+```python
+def get_service(self, service_type: Type[T]) -> T:
+    if service_type not in self._services:
+        raise ValueError(f"Service {service_type} not registered")
+    return self._services[service_type]
+```
+
+## Best Practices
+
+- Register all services in the container during initialization
+- Use constructor injection for all dependencies
+- Implement proper cleanup in the container
+- Use type hints for service registration and resolution
+- Keep services stateless where possible
+- Use interfaces (ports) for dependency contracts
+- Implement proper error handling for missing services
+- Use singleton pattern for shared resources
+- Clean up resources during application shutdown

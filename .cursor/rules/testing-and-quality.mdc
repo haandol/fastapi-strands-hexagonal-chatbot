@@ -1,0 +1,160 @@
+---
+alwaysApply: false
+---
+
+# Testing and Code Quality
+
+This project follows modern Python testing and code quality practices.
+
+## Code Quality Tools
+
+### Linting and Formatting
+- **Ruff**: Fast Python linter with 120 character line length
+- **Configuration**: [pyproject.toml](mdc:pyproject.toml) contains ruff settings
+- **Ignored Rules**: E402 (import position) is ignored for dotenv loading
+
+### Code Style
+```python
+# Line length: 120 characters
+# Indent width: 4 spaces
+# Import organization: stdlib, third-party, local
+# Type hints: Required for all functions
+```
+
+## Testing Strategy
+
+### Test Structure
+- Unit tests for individual components
+- Integration tests for adapter interactions
+- End-to-end tests for API endpoints
+- Mock external dependencies (AWS, MCP servers)
+
+### Testing Patterns
+```python
+import pytest
+from unittest.mock import AsyncMock, MagicMock
+
+class TestChatService:
+    @pytest.fixture
+    def mock_agent_adapter(self):
+        return AsyncMock(spec=AgentAdapter)
+
+    @pytest.fixture
+    def mock_session_adapter(self):
+        return AsyncMock(spec=SessionAdapter)
+
+    async def test_generate_response(self, mock_agent_adapter, mock_session_adapter):
+        # Test implementation
+        pass
+```
+
+### Mocking External Services
+```python
+# Mock AWS Bedrock responses
+@pytest.fixture
+def mock_bedrock_response():
+    return {
+        "content": [{"text": "Mock response"}],
+        "usage": {"input_tokens": 10, "output_tokens": 20}
+    }
+
+# Mock MCP server responses
+@pytest.fixture
+def mock_mcp_response():
+    return {"result": "Mock MCP result"}
+```
+
+## Best Practices
+
+- Write tests for all business logic
+- Mock external dependencies
+- Use fixtures for common test setup
+- Test both success and error scenarios
+- Use type hints in test code
+- Follow AAA pattern (Arrange, Act, Assert)
+- Test async functions properly
+- Use parameterized tests for multiple scenarios
+- Maintain high test coverage
+- Use descriptive test names
+- Test edge cases and error conditions
+- Mock time-dependent operations
+- Test resource cleanup
+- Use integration tests for adapter interactions
+# Testing and Code Quality
+
+This project follows modern Python testing and code quality practices.
+
+## Code Quality Tools
+
+### Linting and Formatting
+- **Ruff**: Fast Python linter with 120 character line length
+- **Configuration**: [pyproject.toml](mdc:pyproject.toml) contains ruff settings
+- **Ignored Rules**: E402 (import position) is ignored for dotenv loading
+
+### Code Style
+```python
+# Line length: 120 characters
+# Indent width: 4 spaces
+# Import organization: stdlib, third-party, local
+# Type hints: Required for all functions
+```
+
+## Testing Strategy
+
+### Test Structure
+- Unit tests for individual components
+- Integration tests for adapter interactions
+- End-to-end tests for API endpoints
+- Mock external dependencies (AWS, MCP servers)
+
+### Testing Patterns
+```python
+import pytest
+from unittest.mock import AsyncMock, MagicMock
+
+class TestChatService:
+    @pytest.fixture
+    def mock_agent_adapter(self):
+        return AsyncMock(spec=AgentAdapter)
+
+    @pytest.fixture
+    def mock_session_adapter(self):
+        return AsyncMock(spec=SessionAdapter)
+
+    async def test_generate_response(self, mock_agent_adapter, mock_session_adapter):
+        # Test implementation
+        pass
+```
+
+### Mocking External Services
+```python
+# Mock AWS Bedrock responses
+@pytest.fixture
+def mock_bedrock_response():
+    return {
+        "content": [{"text": "Mock response"}],
+        "usage": {"input_tokens": 10, "output_tokens": 20}
+    }
+
+# Mock MCP server responses
+@pytest.fixture
+def mock_mcp_response():
+    return {"result": "Mock MCP result"}
+```
+
+## Best Practices
+
+- Write tests for all business logic
+- Mock external dependencies
+- Use fixtures for common test setup
+- Test both success and error scenarios
+- Use type hints in test code
+- Follow AAA pattern (Arrange, Act, Assert)
+- Test async functions properly
+- Use parameterized tests for multiple scenarios
+- Maintain high test coverage
+- Use descriptive test names
+- Test edge cases and error conditions
+- Mock time-dependent operations
+- Test resource cleanup
+- Use integration tests for adapter interactions

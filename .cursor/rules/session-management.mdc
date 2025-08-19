@@ -1,3 +1,6 @@
+---
+alwaysApply: false
+---
 # Session Management Patterns
 
 This project uses RepositorySessionManager for consistent session lifecycle management across the application.
@@ -145,7 +148,3 @@ def validate_session(self, session_manager: RepositorySessionManager) -> bool:
 - Pass session context through service methods
 - Handle session-specific business logic
 - Coordinate between session-aware adapters
-description:
-globs:
-alwaysApply: false
----

@@ -1,68 +1,158 @@
-# Strands and MCP Integration Patterns
+---
+alwaysApply: true
+---
 
-## Agent Adapter Implementation
+# Strands MCP Integration
 
-The [StrandsMCPAgentAdapter](mdc:src/adapters/secondary/chat/strands_mcp_agent_adapter.py) implements the [AgentAdapter](mdc:src/ports/chat/agent_adapter.py) interface and provides:
+This project integrates AWS Bedrock through the Strands framework with MCP (Model Context Protocol) support for extensible tool integration.
 
-### Key Features
-- **AWS Bedrock Integration**: Uses Strands framework with Claude models
-- **MCP Support**: Model Context Protocol for tool integration
-- **Session-based Agents**: Each chat session gets its own agent instance via RepositorySessionManager
-- **Streaming Support**: Both streaming and non-streaming response modes
-- **Signal-based Resource Management**: Proper cleanup with SIGINT/SIGTERM handling
-- **Tool Management**: Dynamic tool and hook registration
-
-### Resource Management & Cleanup
-- **Signal Handlers**: Automatic cleanup on SIGINT/SIGTERM signals
-- **Explicit Cleanup**: `cleanup()` method for manual resource management
-- **Shutdown Method**: Public `shutdown()` method for controlled termination
-- **atexit Backup**: Automatic cleanup on program exit
-- **MCP Client Lifecycle**: Proper connection/disconnection management
-
-### Interface Contract
-The [AgentAdapter](mdc:src/ports/chat/agent_adapter.py) interface requires:
-- `generate_response(session_manager: RepositorySessionManager, content: str) -> str`
-- `generate_response_stream(session_manager: RepositorySessionManager, content: str) -> AsyncIterator[Any]`
-- `configure_mcp(mcp_config: Optional[MCPConfig] = None) -> None`
+## Core Components
 
 ### MCP Configuration
-- [MCPConfig](mdc:src/ports/mcp/config.py) supports both StreamableHttpMCPConfig and StdioMCPConfig
-- MCP clients loaded from configuration files via `configure_mcp()`
-- Tools automatically registered with agents
-- Support for both MCP and local tools
+- [MCPConfig](mdc:src/ports/mcp/config.py) - Configuration models for MCP integration
+- [mcp utilities](mdc:src/utils/mcp.py) - MCP client management and utilities
 
-### Best Practices
-- Always implement the `AgentAdapter` interface contract
-- Use signal handlers for graceful shutdown: `signal.signal(signal.SIGINT, self._signal_handler)`
-- Implement explicit cleanup methods: `cleanup()` and `shutdown()`
-- Handle MCP client lifecycle properly (connect/disconnect)
-- Use structured logging with proper context: `logger.info("message", key=value)`
-- Implement proper error handling for AWS/Bedrock operations
-- Support both streaming and non-streaming modes
-- Use RepositorySessionManager for session management
-- Register cleanup handlers in `__init__` with `_setup_cleanup_handlers()`
+### Strands Integration
+- [StrandsMCPAgentAdapter](mdc:src/adapters/secondary/chat/strands_mcp_agent_adapter.py) - Main adapter for Strands with MCP support
+- [prompt templates](mdc:src/adapters/secondary/chat/prompt.py) - Prompt engineering for chat interactions
 
-### Signal Handling Pattern
+## Key Features
+
+### MCP Support
+- Extensible tool integration through Model Context Protocol
+- Dynamic tool loading and configuration
+- Support for custom MCP servers and tools
+- Proper cleanup and resource management
+
+### AWS Bedrock Integration
+- Claude model integration through Strands
+- Session-based conversation management
+- Streaming response support
+- Proper error handling and retry logic
+
+### Session Management
+- RepositorySessionManager for conversation state
+- File-based session persistence
+- Session lifecycle management
+- Proper cleanup on session termination
+
+## Implementation Patterns
+
+### MCP Configuration
 ```python
-def _setup_cleanup_handlers(self) -> None:
-    signal.signal(signal.SIGINT, self._signal_handler)
-    signal.signal(signal.SIGTERM, self._signal_handler)
-    atexit.register(self.cleanup)
-
-def _signal_handler(self, signum: int, frame) -> None:
-    signal_name = signal.Signals(signum).name
-    logger.info(f"📡 received signal {signal_name}, initiating cleanup...")
-    self.cleanup()
-    signal.signal(signum, signal.SIG_DFL)
-    signal.raise_signal(signum)
+@dataclass
+class MCPConfig:
+    server_url: str
+    tools: List[str]
+    model_name: str
+    max_tokens: int
 ```
 
-### Environment Configuration
-- `MODEL_ID`: AWS Bedrock model identifier
-- `AWS_PROFILE_NAME`: AWS credentials profile (optional)
-- `MODEL_REGION`: AWS region (optional, defaults to ap-northeast-2)
-- `MODEL_TEMPERATURE` and `MODEL_MAX_TOKENS`: Model parameters
-description:
-globs:
-alwaysApply: false
----
+### Agent Adapter Pattern
+```python
+class StrandsMCPAgentAdapter(AgentAdapter):
+    def __init__(self, config: AppConfig):
+        self.config = config
+        self.agent: Optional[Agent] = None
+        self._setup_signal_handlers()
+
+    async def generate_response_stream(self, session_manager: RepositorySessionManager, content: str) -> AsyncIterator[Any]:
+        # Implementation with MCP support
+        pass
+```
+
+### Resource Management
+- Signal handlers for graceful shutdown
+- Explicit cleanup methods
+- Proper MCP client lifecycle management
+- Session cleanup on termination
+
+## Best Practices
+
+- Configure MCP servers through environment variables
+- Implement proper error handling for MCP tool failures
+- Use structured logging for MCP operations
+- Support both streaming and non-streaming responses
+- Implement proper resource cleanup
+- Handle MCP client connection failures gracefully
+- Use session-based conversation context
+- Implement proper prompt engineering
+- Support multiple MCP tools and servers
+- Handle MCP tool responses appropriately
+# Strands MCP Integration
+
+This project integrates AWS Bedrock through the Strands framework with MCP (Model Context Protocol) support for extensible tool integration.
+
+## Core Components
+
+### MCP Configuration
+- [MCPConfig](mdc:src/ports/mcp/config.py) - Configuration models for MCP integration
+- [mcp utilities](mdc:src/utils/mcp.py) - MCP client management and utilities
+
+### Strands Integration
+- [StrandsMCPAgentAdapter](mdc:src/adapters/secondary/chat/strands_mcp_agent_adapter.py) - Main adapter for Strands with MCP support
+- [prompt templates](mdc:src/adapters/secondary/chat/prompt.py) - Prompt engineering for chat interactions
+
+## Key Features
+
+### MCP Support
+- Extensible tool integration through Model Context Protocol
+- Dynamic tool loading and configuration
+- Support for custom MCP servers and tools
+- Proper cleanup and resource management
+
+### AWS Bedrock Integration
+- Claude model integration through Strands
+- Session-based conversation management
+- Streaming response support
+- Proper error handling and retry logic
+
+### Session Management
+- RepositorySessionManager for conversation state
+- File-based session persistence
+- Session lifecycle management
+- Proper cleanup on session termination
+
+## Implementation Patterns
+
+### MCP Configuration
+```python
+@dataclass
+class MCPConfig:
+    server_url: str
+    tools: List[str]
+    model_name: str
+    max_tokens: int
+```
+
+### Agent Adapter Pattern
+```python
+class StrandsMCPAgentAdapter(AgentAdapter):
+    def __init__(self, config: AppConfig):
+        self.config = config
+        self.agent: Optional[Agent] = None
+        self._setup_signal_handlers()
+
+    async def generate_response_stream(self, session_manager: RepositorySessionManager, content: str) -> AsyncIterator[Any]:
+        # Implementation with MCP support
+        pass
+```
+
+### Resource Management
+- Signal handlers for graceful shutdown
+- Explicit cleanup methods
+- Proper MCP client lifecycle management
+- Session cleanup on termination
+
+## Best Practices
+
+- Configure MCP servers through environment variables
+- Implement proper error handling for MCP tool failures
+- Use structured logging for MCP operations
+- Support both streaming and non-streaming responses
+- Implement proper resource cleanup
+- Handle MCP client connection failures gracefully
+- Use session-based conversation context
+- Implement proper prompt engineering
+- Support multiple MCP tools and servers
+- Handle MCP tool responses appropriately

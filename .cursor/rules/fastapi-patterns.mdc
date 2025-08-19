@@ -1,3 +1,7 @@
+---
+alwaysApply: false
+---
+
 # FastAPI Implementation Patterns
 
 ## Controller Structure
@@ -35,7 +39,48 @@ The main application is configured in [src/main.py](mdc:src/main.py) and uses:
 - Implement proper error handling and logging
 - Support both streaming and non-streaming responses
 - Use appropriate HTTP status codes and headers
-description:
-globs:
-alwaysApply: false
----
+- Use structured logging with context information
+- Implement proper CORS handling for web clients
+- Use async/await patterns consistently
+- Handle streaming responses with proper cleanup
+# FastAPI Implementation Patterns
+
+## Controller Structure
+
+All primary adapters (controllers) should follow this pattern:
+
+1. **Constructor Injection**: Controllers receive services through dependency injection
+2. **Router Setup**: Each controller creates its own APIRouter with appropriate prefix
+3. **Route Registration**: Use `add_api_route()` with explicit HTTP methods
+4. **Response Handling**: Return appropriate FastAPI response types
+
+## API Endpoints
+
+- **Health Check**: `GET /ping` - Returns service health status
+- **Chat**: `POST /v1/invocations` - Handles chat interactions with streaming support
+- **Sessions**: `GET/POST/DELETE /v1/sessions/{session_id}` - Session management
+
+## Response Patterns
+
+- Use [ChatRequest](mdc:src/ports/chat/dto.py) and [ChatResponse](mdc:src/ports/chat/dto.py) DTOs for structured data
+- Implement streaming responses using `StreamingResponse` for real-time chat
+- Return appropriate HTTP status codes and error messages
+
+## Configuration
+
+The main application is configured in [src/main.py](mdc:src/main.py) and uses:
+- Environment-based configuration via [src/config/app.py](mdc:src/config/app.py)
+- Dependency injection container from [src/di/container.py](mdc:src/di/container.py)
+- Router aggregation in [src/adapters/primary/router.py](mdc:src/adapters/primary/router.py)
+
+## Best Practices
+
+- Keep controllers thin - delegate business logic to services
+- Use Pydantic models for request/response validation
+- Implement proper error handling and logging
+- Support both streaming and non-streaming responses
+- Use appropriate HTTP status codes and headers
+- Use structured logging with context information
+- Implement proper CORS handling for web clients
+- Use async/await patterns consistently
+- Handle streaming responses with proper cleanup

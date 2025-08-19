@@ -1,0 +1,152 @@
+---
+alwaysApply: true
+---
+
+# Logging and Monitoring
+
+This project uses structured logging with structlog for comprehensive monitoring and debugging.
+
+## Core Components
+
+### Logging Setup
+- [logger utilities](mdc:src/utils/logger.py) - Structured logging configuration
+- `structlog` for structured, contextual logging
+- Proper log levels and formatting
+
+### Monitoring Features
+- Structured logging with context
+- Request/response logging
+- Error tracking and reporting
+- Performance monitoring
+- Session tracking
+
+## Implementation Patterns
+
+### Structured Logging
+```python
+import structlog
+
+logger = structlog.get_logger()
+
+# Log with context
+logger.info("Chat request received",
+           session_id=session_id,
+           user_message=content,
+           model_id=self.config.model_id)
+
+# Error logging
+logger.error("Failed to generate response",
+            session_id=session_id,
+            error=str(e),
+            exc_info=True)
+```
+
+### Request/Response Logging
+```python
+# Log incoming requests
+logger.info("API request",
+           method=request.method,
+           path=request.url.path,
+           session_id=session_id)
+
+# Log responses
+logger.info("API response",
+           status_code=response.status_code,
+           session_id=session_id,
+           response_time=response_time)
+```
+
+### Session Tracking
+```python
+# Session lifecycle logging
+logger.info("Session created", session_id=session_id)
+logger.info("Session accessed", session_id=session_id)
+logger.info("Session deleted", session_id=session_id)
+```
+
+## Best Practices
+
+- Use structured logging with context information
+- Include relevant identifiers (session_id, request_id)
+- Log at appropriate levels (DEBUG, INFO, WARNING, ERROR)
+- Include exception information for errors
+- Use consistent log message formats
+- Log performance metrics where relevant
+- Include user context when appropriate
+- Use correlation IDs for request tracing
+- Implement proper error handling and logging
+- Monitor application health and performance
+# Logging and Monitoring
+
+This project uses structured logging with structlog for comprehensive monitoring and debugging.
+
+## Core Components
+
+### Logging Setup
+- [logger utilities](mdc:src/utils/logger.py) - Structured logging configuration
+- `structlog` for structured, contextual logging
+- Proper log levels and formatting
+
+### Monitoring Features
+- Structured logging with context
+- Request/response logging
+- Error tracking and reporting
+- Performance monitoring
+- Session tracking
+
+## Implementation Patterns
+
+### Structured Logging
+```python
+import structlog
+
+logger = structlog.get_logger()
+
+# Log with context
+logger.info("Chat request received",
+           session_id=session_id,
+           user_message=content,
+           model_id=self.config.model_id)
+
+# Error logging
+logger.error("Failed to generate response",
+            session_id=session_id,
+            error=str(e),
+            exc_info=True)
+```
+
+### Request/Response Logging
+```python
+# Log incoming requests
+logger.info("API request",
+           method=request.method,
+           path=request.url.path,
+           session_id=session_id)
+
+# Log responses
+logger.info("API response",
+           status_code=response.status_code,
+           session_id=session_id,
+           response_time=response_time)
+```
+
+### Session Tracking
+```python
+# Session lifecycle logging
+logger.info("Session created", session_id=session_id)
+logger.info("Session accessed", session_id=session_id)
+logger.info("Session deleted", session_id=session_id)
+```
+
+## Best Practices
+
+- Use structured logging with context information
+- Include relevant identifiers (session_id, request_id)
+- Log at appropriate levels (DEBUG, INFO, WARNING, ERROR)
+- Include exception information for errors
+- Use consistent log message formats
+- Log performance metrics where relevant
+- Include user context when appropriate
+- Use correlation IDs for request tracing
+- Implement proper error handling and logging
+- Monitor application health and performance

@@ -1,55 +1,108 @@
-# Configuration Management Patterns
-
-## Centralized Configuration
-
-The application uses [src/config/app.py](mdc:src/config/app.py) for centralized configuration management:
-
-### Configuration Structure
-- **Environment Variables**: All configuration sourced from environment variables
-- **Type Safety**: Uses dataclasses for structured configuration
-- **Validation**: Required fields are asserted at startup
-- **Defaults**: Sensible defaults for optional configuration
-
-### Key Configuration Areas
-
-#### LLM Configuration
-- `MODEL_ID`: AWS Bedrock model identifier (required)
-- `AWS_PROFILE_NAME`: AWS credentials profile (optional)
-- `MODEL_TEMPERATURE`: Model temperature parameter (default: 0.3)
-- `MODEL_MAX_TOKENS`: Maximum tokens for responses (default: 2048)
-
-#### Environment Configuration
-- `ENVIRONMENT`: Deployment environment (required)
-- `PORT`: Application port (default: 8000)
-
-### Environment File Structure
-- `env/local.env`: Local development configuration
-- `.env`: Runtime environment configuration (gitignored)
-- Environment-specific configurations in `env/` directory
-
-### Configuration Usage
-- Import `app_config` from [src/config/app.py](mdc:src/config/app.py)
-- Access configuration values as typed properties
-- Configuration is validated at application startup
-- Environment variables are loaded via python-dotenv
-
-### Best Practices
-- **Centralized**: All configuration in one place
-- **Type Safety**: Use dataclasses for configuration objects
-- **Validation**: Assert required values at startup
-- **Defaults**: Provide sensible defaults for optional values
-- **Environment Separation**: Use different configs for different environments
-- **Security**: Never commit sensitive values to version control
-
-### Example Usage
-```python
-from config import app_config
-
-# Access typed configuration
-model_id = app_config.model_id
-temperature = app_config.temperature
-```
-description:
-globs:
-alwaysApply: false
 ---
+alwaysApply: true
+---
+
+# Configuration Management
+
+This project uses centralized configuration management with environment-based settings.
+
+## Core Components
+
+### Configuration Models
+- [AppConfig](mdc:src/config/app.py) - Main application configuration
+- Environment variables loaded via `python-dotenv`
+- Type-safe configuration with Pydantic models
+
+### Configuration Sources
+- Environment variables (primary)
+- `.env` files for local development
+- Default values for optional settings
+
+## Implementation Patterns
+
+### Configuration Setup
+```python
+from dotenv import load_dotenv
+load_dotenv()  # Load environment variables
+
+class AppConfig:
+    def __init__(self):
+        self.model_id = os.getenv("MODEL_ID", "anthropic.claude-3-sonnet-20240229-v1:0")
+        self.aws_profile_name = os.getenv("AWS_PROFILE_NAME")
+        self.model_region = os.getenv("MODEL_REGION", "ap-northeast-2")
+        self.model_temperature = float(os.getenv("MODEL_TEMPERATURE", "0.7"))
+        self.model_max_tokens = int(os.getenv("MODEL_MAX_TOKENS", "4096"))
+```
+
+### Environment Variables
+- `MODEL_ID` - AWS Bedrock model identifier
+- `AWS_PROFILE_NAME` - AWS credentials profile (optional)
+- `MODEL_REGION` - AWS region (defaults to ap-northeast-2)
+- `MODEL_TEMPERATURE` - Model temperature parameter
+- `MODEL_MAX_TOKENS` - Maximum tokens for responses
+- `PORT` - Application port (defaults to 8000)
+
+## Best Practices
+
+- Use environment variables for all configuration
+- Provide sensible defaults for optional settings
+- Use type-safe configuration models
+- Load configuration early in application startup
+- Use `.env` files for local development
+- Keep sensitive information in environment variables
+- Use structured configuration objects
+- Validate configuration values
+- Support different environments (dev, staging, prod)
+- Use configuration for feature flags
+# Configuration Management
+
+This project uses centralized configuration management with environment-based settings.
+
+## Core Components
+
+### Configuration Models
+- [AppConfig](mdc:src/config/app.py) - Main application configuration
+- Environment variables loaded via `python-dotenv`
+- Type-safe configuration with Pydantic models
+
+### Configuration Sources
+- Environment variables (primary)
+- `.env` files for local development
+- Default values for optional settings
+
+## Implementation Patterns
+
+### Configuration Setup
+```python
+from dotenv import load_dotenv
+load_dotenv()  # Load environment variables
+
+class AppConfig:
+    def __init__(self):
+        self.model_id = os.getenv("MODEL_ID", "anthropic.claude-3-sonnet-20240229-v1:0")
+        self.aws_profile_name = os.getenv("AWS_PROFILE_NAME")
+        self.model_region = os.getenv("MODEL_REGION", "ap-northeast-2")
+        self.model_temperature = float(os.getenv("MODEL_TEMPERATURE", "0.7"))
+        self.model_max_tokens = int(os.getenv("MODEL_MAX_TOKENS", "4096"))
+```
+
+### Environment Variables
+- `MODEL_ID` - AWS Bedrock model identifier
+- `AWS_PROFILE_NAME` - AWS credentials profile (optional)
+- `MODEL_REGION` - AWS region (defaults to ap-northeast-2)
+- `MODEL_TEMPERATURE` - Model temperature parameter
+- `MODEL_MAX_TOKENS` - Maximum tokens for responses
+- `PORT` - Application port (defaults to 8000)
+
+## Best Practices
+
+- Use environment variables for all configuration
+- Provide sensible defaults for optional settings
+- Use type-safe configuration models
+- Load configuration early in application startup
+- Use `.env` files for local development
+- Keep sensitive information in environment variables
+- Use structured configuration objects
+- Validate configuration values
+- Support different environments (dev, staging, prod)
+- Use configuration for feature flags

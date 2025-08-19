@@ -1,3 +1,7 @@
+---
+alwaysApply: false
+---
+
 # Service Layer Implementation Patterns
 
 ## Service Responsibilities
@@ -41,7 +45,3 @@ The [SessionService](mdc:src/services/session/session_service.py) manages sessio
 - Use structured logging for debugging and monitoring
 - Implement proper error boundaries and fallback strategies
 - Keep services focused on business logic only
-description:
-globs:
-alwaysApply: false
----

@@ -1,0 +1,81 @@
+---
+alwaysApply: false
+---
+
+# Deployment and DevOps
+
+This project includes Docker containerization and deployment configuration.
+
+## Containerization
+
+### Docker Configuration
+- [Dockerfile](mdc:Dockerfile) - Multi-stage build for production
+- [docker-compose.yml](mdc:docker-compose.yml) - Local development setup
+- [.dockerignore](mdc:.dockerignore) - Optimized build context
+
+### Build Process
+```dockerfile
+# Multi-stage build
+FROM python:3.13-slim as builder
+# Install dependencies
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen
+
+FROM python:3.13-slim as runtime
+# Copy dependencies and application
+COPY --from=builder /app /app
+COPY src/ /app/src/
+```
+
+### Environment Configuration
+- Environment variables for configuration
+- `.env` files for local development
+- Docker secrets for production secrets
+
+## Development Setup
+
+### Local Development
+```bash
+# Install dependencies
+uv sync
+
+# Run with Docker Compose
+docker-compose up
+
+# Run locally
+uvicorn src.main:app --reload
+```
+
+### Environment Files
+- `env/local.env` - Local development configuration
+- `.env` - Runtime environment (gitignored)
+- Environment-specific configurations
+
+## Production Deployment
+
+### Container Orchestration
+- Docker containers for application
+- Environment-based configuration
+- Health check endpoints
+- Proper resource limits
+
+### Monitoring and Logging
+- Structured logging to stdout/stderr
+- Health check endpoint at `/ping`
+- Application metrics collection
+- Error tracking and alerting
+
+## Best Practices
+
+- Use multi-stage Docker builds
+- Optimize container size
+- Use non-root user in containers
+- Implement health checks
+- Use environment variables for configuration
+- Separate development and production configs
+- Implement proper logging
+- Use Docker secrets for sensitive data
+- Monitor container health
+- Implement graceful shutdown
+- Use proper resource limits
+- Follow security best practices

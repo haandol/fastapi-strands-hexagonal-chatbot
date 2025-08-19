@@ -1,3 +1,8 @@
+---
+alwaysApply: true
+description: Hexagonal Architecture (Ports and Adapters) Implementation Guide
+---
+
 # Hexagonal Architecture (Ports and Adapters) Implementation Guide
 
 This project follows hexagonal architecture principles with clear separation between domain logic and external concerns, including proper resource management.
@@ -12,6 +17,7 @@ The main entry point is [src/main.py](mdc:src/main.py), which creates the FastAP
    - Define contracts for external dependencies
    - [AgentAdapter](mdc:src/ports/chat/agent_adapter.py) - Interface for AI model interactions with RepositorySessionManager
    - [SessionAdapter](mdc:src/ports/session/session_adapter.py) - Interface for session persistence
+   - [PingAdapter](mdc:src/ports/ping/ping_adapter.py) - Interface for health check operations
    - [MCPConfig](mdc:src/ports/mcp/config.py) - MCP configuration models
 
 2. **Services (Domain Logic)** - `src/services/`

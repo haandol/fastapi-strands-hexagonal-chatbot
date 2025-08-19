@@ -1,0 +1,128 @@
+---
+alwaysApply: true
+---
+
+# Python Coding Standards
+
+## Project Configuration
+
+This project uses modern Python tooling and standards:
+
+- **Python Version**: 3.13+ (specified in [.python-version](mdc:.python-version))
+- **Package Manager**: uv (specified in [pyproject.toml](mdc:pyproject.toml))
+- **Linting**: ruff with 120 character line length
+- **Dependencies**: Managed through [pyproject.toml](mdc:pyproject.toml) and [uv.lock](mdc:uv.lock)
+
+## Code Style
+
+### Import Organization
+```python
+# Standard library imports
+import os
+from contextlib import asynccontextmanager
+from typing import AsyncIterator, Any, Optional
+
+# Third-party imports
+from fastapi import FastAPI
+from strands.session.repository_session_manager import RepositorySessionManager
+
+# Local imports
+from adapters.primary import create_api_router
+from di.container import DIContainer
+```
+
+### Type Hints
+- Use type hints for all function parameters and return values
+- Use `Optional[T]` for nullable types
+- Use `AsyncIterator[T]` for async generators
+- Use `Any` sparingly, prefer specific types
+
+### Async/Await Patterns
+```python
+async def generate_response(self, session_manager: RepositorySessionManager, content: str) -> str:
+    # Implementation
+    pass
+
+async def generate_response_stream(self, session_manager: RepositorySessionManager, content: str) -> AsyncIterator[Any]:
+    # Implementation
+    pass
+```
+
+### Error Handling
+- Use structured logging for errors
+- Implement proper exception handling
+- Use context managers for resource management
+- Handle cleanup in signal handlers
+
+## Best Practices
+
+- Use `structlog` for structured logging
+- Implement proper resource cleanup
+- Use dependency injection for all external dependencies
+- Follow hexagonal architecture principles
+- Use environment variables for configuration
+- Implement proper error responses
+- Use Pydantic models for data validation
+- Support both sync and async operations where appropriate
+# Python Coding Standards
+
+## Project Configuration
+
+This project uses modern Python tooling and standards:
+
+- **Python Version**: 3.13+ (specified in [.python-version](mdc:.python-version))
+- **Package Manager**: uv (specified in [pyproject.toml](mdc:pyproject.toml))
+- **Linting**: ruff with 120 character line length
+- **Dependencies**: Managed through [pyproject.toml](mdc:pyproject.toml) and [uv.lock](mdc:uv.lock)
+
+## Code Style
+
+### Import Organization
+```python
+# Standard library imports
+import os
+from contextlib import asynccontextmanager
+from typing import AsyncIterator, Any, Optional
+
+# Third-party imports
+from fastapi import FastAPI
+from strands.session.repository_session_manager import RepositorySessionManager
+
+# Local imports
+from adapters.primary import create_api_router
+from di.container import DIContainer
+```
+
+### Type Hints
+- Use type hints for all function parameters and return values
+- Use `Optional[T]` for nullable types
+- Use `AsyncIterator[T]` for async generators
+- Use `Any` sparingly, prefer specific types
+
+### Async/Await Patterns
+```python
+async def generate_response(self, session_manager: RepositorySessionManager, content: str) -> str:
+    # Implementation
+    pass
+
+async def generate_response_stream(self, session_manager: RepositorySessionManager, content: str) -> AsyncIterator[Any]:
+    # Implementation
+    pass
+```
+
+### Error Handling
+- Use structured logging for errors
+- Implement proper exception handling
+- Use context managers for resource management
+- Handle cleanup in signal handlers
+
+## Best Practices
+
+- Use `structlog` for structured logging
+- Implement proper resource cleanup
+- Use dependency injection for all external dependencies
+- Follow hexagonal architecture principles
+- Use environment variables for configuration
+- Implement proper error responses
+- Use Pydantic models for data validation
+- Support both sync and async operations where appropriate
