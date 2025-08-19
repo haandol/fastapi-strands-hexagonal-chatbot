@@ -2,6 +2,7 @@ from typing import AsyncIterator, Any, Optional, List, Callable, Dict
 
 import boto3
 from strands import Agent
+from strands.hooks import HookProvider
 from strands.session.repository_session_manager import RepositorySessionManager
 from strands.models.bedrock import BedrockModel
 from strands.agent.conversation_manager import SlidingWindowConversationManager
@@ -55,7 +56,7 @@ class StrandsMCPAgentAdapter(AgentAdapter):
         self.mcp_clients: Dict[str, MCPClient] = {}
         self.mcp_tools: List[MCPAgentTool] = []
         self.local_tools: List[Callable] = []
-        self.hooks: List[Callable] = []
+        self.hooks: List[HookProvider] = []
 
         # Agent instances per session
         self.agents: Dict[str, Agent] = {}
