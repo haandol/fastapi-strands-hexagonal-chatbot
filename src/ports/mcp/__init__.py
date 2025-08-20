@@ -1,3 +1,3 @@
-from .config import MCPConfig
+from .config import MCPConfig, StreamableHttpMCPConfig, StdioMCPConfig
 
-__all__ = ["MCPConfig"]
+__all__ = ["MCPConfig", "StreamableHttpMCPConfig", "StdioMCPConfig"]

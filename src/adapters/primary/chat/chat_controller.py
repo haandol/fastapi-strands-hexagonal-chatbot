@@ -1,4 +1,4 @@
-from typing import AsyncIterator, Any
+from typing import AsyncIterator, Any, cast
 
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
@@ -22,10 +22,11 @@ class ChatController:
                 media_type="text/event-stream",
             )
         else:
-            response = await self.chat_service.generate_response(request.session_id, request.message, request.stream)
-            return ChatResponse(data=response)
+            response = await self.chat_service.generate_response(request.session_id, request.message, stream=False)
+            return ChatResponse(data=str(response))
 
     async def _generate_stream_response(self, request: ChatRequest) -> AsyncIterator[Any]:
-        async for event in await self.chat_service.generate_response(request.session_id, request.message, stream=True):
+        response_stream = await self.chat_service.generate_response(request.session_id, request.message, stream=True)
+        async for event in cast(AsyncIterator[Any], response_stream):
             if "data" in event:
                 yield event["data"]

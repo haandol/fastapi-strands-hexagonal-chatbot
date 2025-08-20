@@ -1,4 +1,4 @@
-from typing import AsyncIterator, Any, Optional, List, Callable, Dict
+from typing import AsyncIterator, Any, Optional, List, Callable, Dict, override
 
 import boto3
 from strands import Agent
@@ -6,16 +6,16 @@ from strands.hooks import HookProvider
 from strands.session.repository_session_manager import RepositorySessionManager
 from strands.models.bedrock import BedrockModel
 from strands.agent.conversation_manager import SlidingWindowConversationManager
-from strands.tools.mcp import MCPClient, MCPAgentTool
+from strands.tools.mcp import MCPClient
 
 from adapters.secondary.chat.prompt import SYSTEM_PROMPT
-from ports.chat import AgentAdapter
+from ports.chat import MCPAgentAdapter
 from ports.mcp import MCPConfig
 from utils.mcp import load_mcp_config, initialize_mcp_clients, load_mcp_tools
 from utils.logger import logger
 
 
-class StrandsMCPAgentAdapter(AgentAdapter):
+class StrandsMCPAgentAdapter(MCPAgentAdapter):
     def __init__(
         self,
         model_id: str,
@@ -54,18 +54,14 @@ class StrandsMCPAgentAdapter(AgentAdapter):
 
         # MCP components
         self.mcp_clients: Dict[str, MCPClient] = {}
-        self.mcp_tools: List[MCPAgentTool] = []
+        self.mcp_tools: List[Callable] = []
         self.local_tools: List[Callable] = []
         self.hooks: List[HookProvider] = []
 
         # Agent instances per session
         self.agents: Dict[str, Agent] = {}
 
-    def shutdown(self) -> None:
-        """Public method to initiate shutdown"""
-        logger.info("🛑 shutdown requested")
-        self.cleanup()
-
+    @override
     def configure_mcp(self, mcp_config: Optional[MCPConfig] = None) -> None:
         """Configure MCP clients and tools"""
         if mcp_config is None:
@@ -74,7 +70,7 @@ class StrandsMCPAgentAdapter(AgentAdapter):
         self.mcp_clients = initialize_mcp_clients(mcp_config)
 
         for server_name, client in self.mcp_clients.items():
-            client.__enter__()
+            client.start()
             logger.info("⚡️ MCP client connected", server_name=server_name)
 
         self.mcp_tools = load_mcp_tools(self.mcp_clients)
@@ -98,6 +94,7 @@ class StrandsMCPAgentAdapter(AgentAdapter):
                     session_id=session_id)
         return agent
 
+    @override
     async def generate_response(self, session_manager: RepositorySessionManager, content: str) -> str:
         """Generate response using the agent"""
         session_id = session_manager.session_id
@@ -105,8 +102,9 @@ class StrandsMCPAgentAdapter(AgentAdapter):
 
         response = await agent.invoke_async(prompt=content)
         content_block = response.message["content"][0]
-        return content_block["text"]
+        return content_block.get("text", "")
 
+    @override
     async def generate_response_stream(self, session_manager: RepositorySessionManager, content: str) -> AsyncIterator[Any]:
         """Generate streaming response using the agent"""
         session_id = session_manager.session_id
@@ -114,13 +112,14 @@ class StrandsMCPAgentAdapter(AgentAdapter):
 
         return agent.stream_async(prompt=content)
 
+    @override
     def cleanup(self) -> None:
         logger.info("🧹 cleaning up agent adapter")
 
         for client_name, client in self.mcp_clients.items():
             try:
                 logger.info("🔌 closing MCP client", client_name=client_name)
-                client.__exit__(None, None, None)
+                client.stop(None, None, None)
             except Exception:
                 logger.error(
                     "🚨 error on closing MCP client",

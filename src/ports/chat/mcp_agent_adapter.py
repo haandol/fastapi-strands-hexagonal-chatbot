@@ -6,7 +6,7 @@ from strands.session.repository_session_manager import RepositorySessionManager
 from ports.mcp import MCPConfig
 
 
-class AgentAdapter(ABC):
+class MCPAgentAdapter(ABC):
     @abstractmethod
     async def generate_response(self, session_manager: RepositorySessionManager, content: str) -> str:
         pass

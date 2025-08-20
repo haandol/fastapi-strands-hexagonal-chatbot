@@ -1,0 +1,18 @@
+{
+  "include": [
+    "src"
+  ],
+  "venvPath": ".",
+  "venv": ".venv",
+  "reportIncompatibleMethodOverride": "warning",
+  "reportMissingOverrides": "warning",
+  "reportImplicitOverride": "warning",
+  "executionEnvironments": [
+    {
+      "root": "src",
+      "extraPaths": [
+        "src"
+      ]
+    }
+  ]
+}

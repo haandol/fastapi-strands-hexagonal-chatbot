@@ -6,7 +6,7 @@ from strands.tools.mcp import MCPClient
 from mcp.client.stdio import stdio_client, StdioServerParameters
 from mcp.client.streamable_http import streamablehttp_client
 
-from ports.mcp import MCPConfig
+from ports.mcp import MCPConfig, StreamableHttpMCPConfig, StdioMCPConfig
 from utils.logger import logger
 
 
@@ -15,7 +15,9 @@ def load_mcp_config() -> MCPConfig:
     config_path = os.path.join(os.getcwd(), "mcp_config.json")
     if not os.path.exists(config_path):
         logger.warning(
-            "⚠️ MCP config file not found, using empty config", config_path=config_path)
+            "⚠️ MCP config file not found, using empty config",
+            config_path=config_path,
+        )
         return MCPConfig()
 
     try:
@@ -23,7 +25,12 @@ def load_mcp_config() -> MCPConfig:
             config_data = json.load(f)
         return MCPConfig.model_validate(config_data)
     except Exception:
-        logger.error("🚨 failed to load MCP config", exc_info=True, stack_info=True)
+        logger.error(
+            "🚨 failed to load MCP config",
+            exc_info=True,
+            stack_info=True,
+            config_path=config_path,
+        )
         return MCPConfig()
 
 
@@ -38,25 +45,27 @@ def initialize_mcp_clients(mcp_config: MCPConfig) -> Dict[str, MCPClient]:
         try:
             client: Optional[MCPClient] = None
             if server_config.transportType == "streamable-http":
-                client = MCPClient(
-                    lambda config=server_config: streamablehttp_client(config.url))
+                if isinstance(server_config, StreamableHttpMCPConfig):
+                    client = MCPClient(
+                        lambda config=server_config: streamablehttp_client(config.url))
             elif server_config.transportType == "stdio":
-                client = MCPClient(
-                    lambda config=server_config: stdio_client(
-                        StdioServerParameters(
-                            command=config.command,
-                            args=config.args,
-                            env=config.env,
+                if isinstance(server_config, StdioMCPConfig):
+                    client = MCPClient(
+                        lambda config=server_config: stdio_client(
+                            StdioServerParameters(
+                                command=config.command,
+                                args=config.args,
+                                env=config.env,
+                            )
                         )
                     )
-                )
             if client:
+                logger.info("🔄 MCP client created", server_name=server_name)
                 mcp_clients[server_name] = client
 
         except Exception:
             logger.error(
-                "🚨 failed to connect MCP client",
-                server_name=server_name, exc_info=True, stack_info=True,
+                "🚨 failed to create MCP client", server_name=server_name, exc_info=True, stack_info=True,
             )
     return mcp_clients
 

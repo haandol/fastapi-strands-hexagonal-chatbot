@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, override
 
 import ulid
 from strands.session.file_session_manager import FileSessionManager
@@ -13,6 +13,7 @@ class StrandsFileSessionAdapter(SessionAdapter):
         self.sessions: Dict[str, FileSessionManager] = {}
 
     # TODO: get involved with user_id
+    @override
     async def create_session(self, user_id: str) -> str:
         session_id = ulid.ulid()
         self.sessions[session_id] = FileSessionManager(
@@ -21,19 +22,29 @@ class StrandsFileSessionAdapter(SessionAdapter):
         )
         return session_id
 
+    @override
     async def get_session(self, session_id: str) -> FileSessionManager:
         if session_id not in self.sessions:
-            logger.error("🚨 session not found", session_id=session_id, exc_info=True, stack_info=True)
+            logger.error(
+                "🚨 session not found",
+                session_id=session_id,
+                exc_info=True,
+                stack_info=True,
+            )
             raise KeyError(f"🚨 session not found: {session_id}")
         return self.sessions[session_id]
 
+    @override
     async def delete_session(self, session_id: str) -> None:
         if session_id not in self.sessions:
             return
 
         del self.sessions[session_id]
 
+    @override
     def cleanup(self) -> None:
         logger.info("🧹 cleaning up session adapter")
+
         self.sessions.clear()
+
         logger.info("🧹 session adapter cleaned up")

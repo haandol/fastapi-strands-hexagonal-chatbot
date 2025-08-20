@@ -1,13 +1,13 @@
 from typing import AsyncIterator, Any, Union
 
-from ports.chat import AgentAdapter
+from ports.chat import MCPAgentAdapter
 from ports.session import SessionAdapter
 
 
 class ChatService:
     def __init__(
         self,
-        agent_adapter: AgentAdapter,
+        agent_adapter: MCPAgentAdapter,
         session_adapter: SessionAdapter,
     ):
         self.agent_adapter = agent_adapter

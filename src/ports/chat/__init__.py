@@ -1,4 +1,4 @@
-from .agent_adapter import AgentAdapter
+from .mcp_agent_adapter import MCPAgentAdapter
 
 
-__all__ = ["AgentAdapter"]
+__all__ = ["MCPAgentAdapter"]

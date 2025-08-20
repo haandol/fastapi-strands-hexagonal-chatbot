@@ -18,6 +18,8 @@
         "extensions.verifySignature": false
       },
       "extensions": [
+        "ms-python.python",
+        "anysphere.cursorpyright",
         "PKief.material-icon-theme",
         "aaron-bond.better-comments",
         "shardulm94.trailing-spaces",

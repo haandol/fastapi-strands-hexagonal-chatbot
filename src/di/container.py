@@ -2,7 +2,7 @@ from services import ChatService, SessionService
 from adapters.secondary.chat import StrandsMCPAgentAdapter
 from adapters.secondary.session import StrandsFileSessionAdapter
 from ports.session import SessionAdapter
-from ports.chat import AgentAdapter
+from ports.chat import MCPAgentAdapter
 from config import app_config
 
 
@@ -11,7 +11,7 @@ class DIContainer:
     def __init__(self):
         # secondary adapters
         self._session_adapter: SessionAdapter = StrandsFileSessionAdapter()
-        self._agent_adapter: AgentAdapter = StrandsMCPAgentAdapter(
+        self._agent_adapter: MCPAgentAdapter = StrandsMCPAgentAdapter(
             model_id=app_config.model_id,
             max_tokens=app_config.max_tokens,
             temperature=app_config.temperature,
