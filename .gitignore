@@ -207,3 +207,6 @@ __marimo__/
 .sessions/
 
 mcp_config.json
+# LSP 캐시 제외
+.pyright_cache/
+pyrightconfig.json

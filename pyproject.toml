@@ -27,6 +27,8 @@ exclude = [
   "**/__pycache__",
   "src/experimental",
   "src/typestubs",
+  ".venv",
+  ".git",
 ]
 reportMissingImports = "error"
 reportMissingTypeStubs = false
