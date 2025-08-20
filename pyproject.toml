@@ -5,12 +5,12 @@ description = "Strands Hexagonal Chatbot"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "fastapi>=0.116.1",
-    "python-dotenv>=1.1.1",
-    "strands-agents[otel]>=1.4.0",
-    "structlog>=25.4.0",
-    "ulid>=1.1",
-    "uvicorn>=0.35.0",
+  "fastapi>=0.116.1",
+  "python-dotenv>=1.1.1",
+  "strands-agents[otel]>=1.4.0",
+  "structlog>=25.4.0",
+  "ulid>=1.1",
+  "uvicorn>=0.35.0",
 ]
 
 [tool.ruff]
@@ -20,9 +20,14 @@ indent-width = 4
 [tool.ruff.lint]
 ignore = ["E402"]
 
-[tool.basedpyright]
+[tool.pyright]
 include = ["src"]
-exclude = ["**/node_modules", "**/__pycache__", "src/experimental", "src/typestubs"]
+exclude = [
+  "**/node_modules",
+  "**/__pycache__",
+  "src/experimental",
+  "src/typestubs",
+]
 reportMissingImports = "error"
 reportMissingTypeStubs = false
 reportIncompatibleMethodOverride = "error"
@@ -30,3 +35,4 @@ reportIncompatibleVariableOverride = "error"
 reportImplicitOverride = "warning"
 venvPath = "."
 venv = ".venv"
+
