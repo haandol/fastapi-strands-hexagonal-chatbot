@@ -78,8 +78,7 @@ class StrandsMCPAgentAdapter(MCPAgentAdapter):
     def _get_or_create_agent(self, session_id: str) -> Agent:
         """Get existing agent or create new one for session"""
         if session_id in self.agents:
-            logger.info("🔄 reusing existing agent for session",
-                        session_id=session_id)
+            logger.info("🔄 reusing existing agent for session", session_id=session_id)
             return self.agents[session_id]
 
         agent = Agent(
@@ -90,8 +89,7 @@ class StrandsMCPAgentAdapter(MCPAgentAdapter):
             hooks=self.hooks,
         )
         self.agents[session_id] = agent
-        logger.info("🤖 StrandsAgent created for session",
-                    session_id=session_id)
+        logger.info("🤖 StrandsAgent created for session", session_id=session_id)
         return agent
 
     @override
@@ -105,7 +103,9 @@ class StrandsMCPAgentAdapter(MCPAgentAdapter):
         return content_block.get("text", "")
 
     @override
-    async def generate_response_stream(self, session_manager: RepositorySessionManager, content: str) -> AsyncIterator[Any]:
+    async def generate_response_stream(
+        self, session_manager: RepositorySessionManager, content: str
+    ) -> AsyncIterator[Any]:
         """Generate streaming response using the agent"""
         session_id = session_manager.session_id
         agent = self._get_or_create_agent(session_id)
@@ -123,7 +123,9 @@ class StrandsMCPAgentAdapter(MCPAgentAdapter):
             except Exception:
                 logger.error(
                     "🚨 error on closing MCP client",
-                    client_name=client_name, exc_info=True, stack_info=True,
+                    client_name=client_name,
+                    exc_info=True,
+                    stack_info=True,
                 )
 
         self.mcp_clients.clear()

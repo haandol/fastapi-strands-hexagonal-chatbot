@@ -12,7 +12,9 @@ class MCPAgentAdapter(ABC):
         pass
 
     @abstractmethod
-    async def generate_response_stream(self, session_manager: RepositorySessionManager, content: str) -> AsyncIterator[Any]:
+    async def generate_response_stream(
+        self, session_manager: RepositorySessionManager, content: str
+    ) -> AsyncIterator[Any]:
         pass
 
     @abstractmethod

@@ -20,23 +20,7 @@ indent-width = 4
 [tool.ruff.lint]
 ignore = ["E402"]
 
-[tool.pyright]
-include = ["src"]
-exclude = [
-  "**/node_modules",
-  "**/__pycache__",
-  "src/experimental",
-  "src/typestubs",
-  ".venv",
-  ".git",
-]
-reportMissingImports = "error"
-reportMissingTypeStubs = false
-reportIncompatibleMethodOverride = "error"
-reportIncompatibleVariableOverride = "error"
-reportImplicitOverride = "warning"
-venvPath = "."
-venv = ".venv"
+
 
 [project.optional-dependencies]
 test = ["pytest>=8.0", "pytest-asyncio>=0.23"]
