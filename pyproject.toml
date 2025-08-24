@@ -20,8 +20,6 @@ indent-width = 4
 [tool.ruff.lint]
 ignore = ["E402"]
 
-
-
 [project.optional-dependencies]
 test = ["pytest>=8.0", "pytest-asyncio>=0.23"]
 
@@ -29,3 +27,27 @@ test = ["pytest>=8.0", "pytest-asyncio>=0.23"]
 pythonpath = ["src"]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+
+[tool.pyright]
+typeCheckingMode = "standard"
+include = [
+    "src",
+    "tests"
+]
+exclude = [
+  "**/node_modules",
+  "**/__pycache__",
+  "src/experimental",
+  "src/typestubs",
+  ".venv",
+  ".git"
+]
+reportUnusedImport = true
+reportMissingTypeStubs = false
+reportShadowedImports = "warning"
+reportMissingImports = "error"
+reportIncompatibleMethodOverride = "error"
+reportIncompatibleVariableOverride = "error"
+reportImplicitOverride = "warning"
+venvPath = "."
+venv = ".venv"
