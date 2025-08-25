@@ -3,12 +3,12 @@ import structlog
 from config import app_config
 
 
-def setup_logger(name: str = "open-rufus") -> structlog.BoundLogger:
+def setup_logger(name: str = "chatbot") -> structlog.BoundLogger:
     """
     Setup and configure structured logger for the application.
 
     Args:
-        name (str): Name of the logger. Defaults to "alps_writer"
+        name (str): Name of the logger. Defaults to "chatbot"
 
     Returns:
         structlog.BoundLogger: Configured structured logger instance
