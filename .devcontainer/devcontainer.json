@@ -20,13 +20,17 @@
       "extensions": [
         "ms-python.python",
         "anysphere.cursorpyright",
+        "usernamehw.errorlens",
+        "mikestead.dotenv",
+        "tamasfe.even-better-toml",
         "PKief.material-icon-theme",
         "aaron-bond.better-comments",
+        "uloco.theme-bluloco-light",
         "shardulm94.trailing-spaces",
         "oderwat.indent-rainbow",
         "ms-azuretools.vscode-docker",
         "ClemensPeters.format-json",
-        "anysphere.pyright",
+        "mhutchie.git-graph",
         "charliermarsh.ruff"
       ]
     }
