@@ -1,12 +1,12 @@
 import os
 import json
-from typing import Optional, Dict, List, Callable
+from typing import Optional, Dict, List
 
-from strands.tools.mcp import MCPClient
+from strands.tools.mcp import MCPAgentTool, MCPClient
 from mcp.client.stdio import stdio_client, StdioServerParameters
 from mcp.client.streamable_http import streamablehttp_client
 
-from ports.mcp import MCPConfig, StreamableHttpMCPConfig, StdioMCPConfig
+from ports.interfaces.mcp import MCPConfig, StreamableHttpMCPConfig, StdioMCPConfig
 from utils.logger import logger
 
 
@@ -38,16 +38,14 @@ def initialize_mcp_clients(mcp_config: MCPConfig) -> Dict[str, MCPClient]:
     mcp_clients: Dict[str, MCPClient] = {}
     for server_name, server_config in mcp_config.mcpServers.items():
         if server_config.disabled:
-            logger.info("🔄 MCP server disabled, skipping",
-                        server_name=server_name)
+            logger.info("🔄 MCP server disabled, skipping", server_name=server_name)
             continue
 
         try:
             client: Optional[MCPClient] = None
             if server_config.transportType == "streamable-http":
                 if isinstance(server_config, StreamableHttpMCPConfig):
-                    client = MCPClient(
-                        lambda config=server_config: streamablehttp_client(config.url))
+                    client = MCPClient(lambda config=server_config: streamablehttp_client(config.url))
             elif server_config.transportType == "stdio":
                 if isinstance(server_config, StdioMCPConfig):
                     client = MCPClient(
@@ -65,23 +63,27 @@ def initialize_mcp_clients(mcp_config: MCPConfig) -> Dict[str, MCPClient]:
 
         except Exception:
             logger.error(
-                "🚨 failed to create MCP client", server_name=server_name, exc_info=True, stack_info=True,
+                "🚨 failed to create MCP client",
+                server_name=server_name,
+                exc_info=True,
+                stack_info=True,
             )
     return mcp_clients
 
 
-def load_mcp_tools(mcp_clients: Dict[str, MCPClient]) -> List[Callable]:
+def load_mcp_tools(mcp_clients: Dict[str, MCPClient]) -> List[MCPAgentTool]:
     """Load tools from MCP clients"""
-    mcp_tools: List[Callable] = []
+    mcp_tools: List[MCPAgentTool] = []
     for server_name, mcp_client in mcp_clients.items():
         try:
             client_tools = mcp_client.list_tools_sync()
             mcp_tools.extend(client_tools)
-            logger.info("⚡️ MCP tools loaded", server_name=server_name,
-                        tool_count=len(client_tools))
+            logger.info("⚡️ MCP tools loaded", server_name=server_name, tool_count=len(client_tools))
         except Exception:
             logger.error(
                 "🚨 failed to load MCP tools",
-                server_name=server_name, exc_info=True, stack_info=True,
+                server_name=server_name,
+                exc_info=True,
+                stack_info=True,
             )
     return mcp_tools

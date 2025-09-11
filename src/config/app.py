@@ -17,6 +17,9 @@ MODEL_MAX_TOKENS = int(os.getenv("MODEL_MAX_TOKENS", 1024 * 2))
 ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
 assert ENVIRONMENT, "ENVIRONMENT environment variable not set"
 
+# Observability
+TRACING_ENABLED = os.getenv("TRACING_ENABLED", "false").lower() == "true"
+
 
 @dataclass
 class AppConfig:
@@ -25,6 +28,7 @@ class AppConfig:
     max_tokens: int
     aws_profile_name: Optional[str]
     environment: str
+    tracing_enabled: bool
 
 
 app_config = AppConfig(
@@ -33,4 +37,5 @@ app_config = AppConfig(
     max_tokens=MODEL_MAX_TOKENS,
     aws_profile_name=AWS_PROFILE_NAME,
     environment=ENVIRONMENT,
+    tracing_enabled=TRACING_ENABLED,
 )

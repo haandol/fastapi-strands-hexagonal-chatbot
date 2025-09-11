@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from ports.ping.dto import HealthResponse
+from ports.dto.ping import HealthResponse
 
 
 class PingController:
@@ -8,5 +8,5 @@ class PingController:
         self.router = APIRouter()
         self.router.add_api_route("/ping", self.ping, methods=["GET"])
 
-    async def ping(self):
+    async def ping(self) -> HealthResponse:
         return HealthResponse(status="ok")

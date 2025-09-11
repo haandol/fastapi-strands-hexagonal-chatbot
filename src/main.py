@@ -5,9 +5,11 @@ from dotenv import load_dotenv
 load_dotenv()  # noqa: E402
 
 from fastapi import FastAPI
-from di.container import DIContainer
+from fastapi.middleware.cors import CORSMiddleware
 
+from di.container import DIContainer
 from adapters.primary import create_api_router
+from middleware import LoggingMiddleware
 
 
 # Global DI container instance
@@ -20,8 +22,7 @@ async def lifespan(_: FastAPI):
 
     yield
 
-    # Shutdown
-    di_container.cleanup()
+    await di_container.cleanup()
     print("🧹 Application shutdown - resources cleaned up")
 
 
@@ -32,6 +33,14 @@ def create_app() -> FastAPI:
         version="1.0.0",
         lifespan=lifespan,
     )
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    app.add_middleware(LoggingMiddleware)
 
     app.include_router(create_api_router(di_container))
 
