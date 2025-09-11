@@ -19,38 +19,47 @@ src/
 │   │   ├── __init__.py
 │   │   └── router.py
 │   └── secondary/      # Outbound adapters (Strands implementations)
-│       ├── chat/
+│       ├── mcp_agent/
 │       │   ├── strands_mcp_agent_adapter.py
-│       │   ├── prompt.py
 │       │   └── __init__.py
-│       └── session/
-│           ├── strands_file_session_adapter.py
+│       ├── session/
+│       │   ├── strands_file_session_adapter.py
+│       │   └── __init__.py
+│       └── o11y/       # Observability adapters
+│           ├── langfuse_o11y_adapter.py
+│           ├── noop_o11y_adapter.py
 │           └── __init__.py
 ├── ports/              # Interface definitions (ports)
-│   ├── chat/
-│   │   ├── agent_adapter.py
-│   │   └── dto.py
-│   ├── session/
-│   │   ├── session_adapter.py
-│   │   └── dto.py
-│   ├── ping/
-│   │   ├── ping_adapter.py
-│   │   └── dto.py
-│   └── mcp/
-│       ├── config.py
-│       └── __init__.py
+│   ├── dto/            # Data transfer objects
+│   │   ├── chat.py
+│   │   ├── session.py
+│   │   └── ping.py
+│   ├── adapters/       # Port interfaces
+│   │   └── secondary/
+│   │       ├── mcp_agent_adapter.py
+│   │       ├── session_adapter.py
+│   │       ├── o11y_adapter.py
+│   │       └── ping_adapter.py
+│   └── interfaces/     # Domain interfaces
+│       ├── chat.py
+│       └── mcp.py
 ├── services/           # Application services
 │   ├── chat/
-│   │   └── chat_service.py
-│   ├── session/
-│   │   └── session_service.py
+│   │   ├── chat_service.py
+│   │   ├── prompt.py
+│   │   └── __init__.py
+│   └── session/
+│       ├── session_service.py
+│       └── __init__.py
+├── middleware/         # FastAPI middleware
+│   ├── logging_middleware.py
 │   └── __init__.py
 ├── di/                 # Dependency injection
-│   ├── __init__.py
-│   └── container.py
+│   ├── container.py
+│   └── __init__.py
 ├── config/             # Configuration
-│   ├── __init__.py
-│   └── app.py
+│   ├── app.py
+│   └── __init__.py
 ├── utils/              # Utilities
 │   ├── logger.py
 │   └── mcp.py
@@ -110,6 +119,9 @@ MODEL_TEMPERATURE="0.3"
 MODEL_MAX_TOKENS="2048"
 # AWS_PROFILE_NAME="default"  # Optional
 ENVIRONMENT="local"
+
+# Observability
+TRACING_ENABLED="false"
 ```
 
 #### MCP Configuration
@@ -181,9 +193,19 @@ Content-Type: application/json
 ### Session Management
 
 ```http
-POST /v1/sessions/{session_id}
-GET /v1/sessions/{session_id}
-DELETE /v1/sessions/{session_id}
+POST /v1/sessions
+Content-Type: application/json
+
+{
+  "user_id": "user_123"
+}
+
+DELETE /v1/sessions
+Content-Type: application/json
+
+{
+  "session_id": "session_123"
+}
 ```
 
 ## Project Structure
@@ -218,11 +240,14 @@ The DI container is initialized at application startup and provides services to 
 
 - `StrandsMCPAgentAdapter`: AWS Bedrock and MCP integration via Strands framework
 - `StrandsFileSessionAdapter`: File-based session storage implementation via Strands framework
+- `LangfuseO11yAdapter`: Observability adapter for Langfuse tracing
+- `NoOpO11yAdapter`: No-operation observability adapter for disabled tracing
 
 ### Ports (Interfaces)
 
-- `AgentAdapter`: Interface for AI model interactions with MCP support
+- `MCPAgentAdapter`: Interface for AI model interactions with MCP support
 - `SessionAdapter`: Interface for session persistence
+- `O11yAdapter`: Interface for observability and tracing
 - DTOs: Data transfer objects for each domain (chat, session, ping)
 - MCP Configuration: Models for MCP server configuration
 
@@ -233,7 +258,7 @@ The application supports MCP (Model Context Protocol) through the `StrandsMCPAge
 - Loads MCP server configurations from `mcp_config.json` or environment-specific files
 - Initializes MCP clients for configured servers
 - Provides tools from MCP servers to the AI agent
-- Supports both `stdio` and `streamable-http` transport types
+- Supports `stdio` and `streamable-http` transport type
 
 For detailed MCP usage, see [docs/MCP_USAGE.md](docs/MCP_USAGE.md).
 
@@ -245,6 +270,8 @@ For detailed MCP usage, see [docs/MCP_USAGE.md](docs/MCP_USAGE.md).
 - **Python-dotenv**: Environment variable management
 - **ULID**: Unique identifier generation
 - **Uvicorn**: ASGI server
+- **Boto3**: AWS SDK for Python
+- **Langfuse**: Observability and tracing
 
 ## Documentation
 
