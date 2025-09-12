@@ -20,10 +20,9 @@ class ChatService:
         # Agent instances per session
         self.session_agents: Dict[str, Agent] = {}
 
-    def _get_or_create_agent(self, session_id: str):
+    async def _get_or_create_agent(self, user_id: str, session_id: str):
         if session_id not in self.session_agents:
-            user_id = self._session_adapter.get_session_user(session_id)
-            session_manager = self._session_adapter.get_session(session_id)
+            session_manager = await self._session_adapter.get_session(user_id, session_id)
 
             self.session_agents[session_id] = self._agent_adapter.create_agent(
                 user_id=user_id,
@@ -39,11 +38,12 @@ class ChatService:
 
     async def generate_response(
         self,
+        user_id: str,
         session_id: str,
         prompt: str,
         stream: bool = False,
     ) -> Union[str, AsyncIterator[Any]]:
-        agent = self._get_or_create_agent(session_id)
+        agent = await self._get_or_create_agent(user_id, session_id)
 
         if stream:
             return await self._agent_adapter.generate_stream_response(agent, prompt)

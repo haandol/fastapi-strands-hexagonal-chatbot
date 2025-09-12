@@ -5,7 +5,7 @@ from ports.adapters.secondary import SessionAdapter
 from ports.adapters.secondary import MCPAgentAdapter
 from ports.adapters.secondary import O11yAdapter
 from adapters.secondary.mcp_agent import StrandsMCPAgentAdapter
-from adapters.secondary.session import StrandsFileSessionAdapter
+from adapters.secondary.session import StrandsFileSessionAdapter, StrandsS3SessionAdapter
 from adapters.secondary.o11y import NoOpO11yAdapter, LangfuseO11yAdapter
 from services.chat import ChatService
 from services.session import SessionService
@@ -19,7 +19,7 @@ class DIContainer:
         # session
         self._session_adapter: Optional[SessionAdapter] = None
         # agent
-        self._o11y_adapter: Optional[O11yAdapter] = None
+        self._o11adapter: Optional[O11yAdapter] = None
         self._agent_adapter: Optional[MCPAgentAdapter] = None
 
         # SERVICES
@@ -29,7 +29,14 @@ class DIContainer:
     @property
     def session_adapter(self) -> SessionAdapter:
         if self._session_adapter is None:
-            self._session_adapter = StrandsFileSessionAdapter()
+            if app_config.session_bucket_name:
+                self._session_adapter = StrandsS3SessionAdapter(
+                    bucket=app_config.session_bucket_name,
+                    prefix=app_config.session_prefix,
+                    aws_profile_name=app_config.aws_profile_name,
+                )
+            else:
+                self._session_adapter = StrandsFileSessionAdapter()
         return self._session_adapter
 
     @property
@@ -49,6 +56,8 @@ class DIContainer:
                 temperature=app_config.temperature,
                 o11y_adapter=self.o11y_adapter,
                 aws_profile_name=app_config.aws_profile_name,
+                guardrail_id=app_config.guardrail_id,
+                guardrail_version=app_config.guardrail_version,
             )
             self._agent_adapter.configure_mcp()
 

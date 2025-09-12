@@ -19,14 +19,16 @@ class ChatController:
     async def invoke(self, request: ChatRequest):
         if request.stream:
             response_stream = await self.chat_service.generate_response(
-                request.session_id, request.message, stream=True
+                request.user_id, request.session_id, request.message, stream=True
             )
             return StreamingResponse(
                 self._generate_event_stream(cast(AsyncIterator[StreamChunk], response_stream)),
                 media_type="text/event-stream",
             )
         else:
-            response = await self.chat_service.generate_response(request.session_id, request.message, stream=False)
+            response = await self.chat_service.generate_response(
+                request.user_id, request.session_id, request.message, stream=False
+            )
             return ChatResponse(data=str(response))
 
     async def _generate_event_stream(self, response_stream: AsyncIterator[StreamChunk]) -> AsyncIterator[str]:

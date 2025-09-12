@@ -76,6 +76,7 @@ src/
 - **Streaming Support** for real-time chat responses
 - **Health Check** endpoint
 - **Structured Logging** with structlog
+- **Observability** with optional Langfuse integration
 
 ## Quick Start
 
@@ -145,6 +146,7 @@ Configure MCP servers in `mcp_config.json`:
 ```
 
 Environment-specific configurations are also supported in `mcp_config/`:
+
 - `mcp_config/local.json`
 - `mcp_config/dev.json`
 
