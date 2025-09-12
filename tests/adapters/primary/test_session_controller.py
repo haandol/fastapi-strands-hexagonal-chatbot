@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 import pytest
+from typing import List, Any
 
 from adapters.primary.session.session_controller import SessionController
 from services.session.session_service import SessionService
-from ports.session.session_adapter import SessionAdapter
+from ports.adapters.secondary.session_adapter import SessionAdapter
 
 
 class InMemorySessionAdapter(SessionAdapter):
@@ -16,18 +17,24 @@ class InMemorySessionAdapter(SessionAdapter):
         self.sessions[session_id] = user_id
         return session_id
 
-    async def get_session(self, session_id: str):
+    async def get_session(self, user_id: str, session_id: str):
         from conftest import DummyRepositorySessionManager
         if session_id not in self.sessions:
             raise KeyError(session_id)
         return DummyRepositorySessionManager(session_id)
 
-    async def delete_session(self, session_id: str) -> None:
+    async def get_user_session_ids(self, user_id: str) -> List[str]:
+        return [sid for sid, uid in self.sessions.items() if uid == user_id]
+
+    async def list_messages(self, user_id: str, session_id: str) -> List[Any]:
+        return []
+
+    async def delete_session(self, user_id: str, session_id: str) -> None:
         if session_id not in self.sessions:
             raise KeyError(session_id)
         del self.sessions[session_id]
 
-    def cleanup(self) -> None:
+    async def cleanup(self) -> None:
         pass
 
 
@@ -61,7 +68,7 @@ def test_delete_session(app):
     fastapi_app, adapter = app
     adapter.sessions["s1"] = "u1"
     client = TestClient(fastapi_app)
-    resp = client.request("DELETE", "/v1/sessions", json={"session_id": "s1"})
+    resp = client.request("DELETE", "/v1/sessions", json={"user_id": "u1", "session_id": "s1"})
     assert resp.status_code == 200
     assert resp.json() == {"message": "Session deleted"}
     assert "s1" not in adapter.sessions
@@ -77,5 +84,5 @@ def test_delete_session_requires_id(app):
 def test_delete_session_not_found(app):
     fastapi_app, _ = app
     client = TestClient(fastapi_app, raise_server_exceptions=False)
-    resp = client.request("DELETE", "/v1/sessions", json={"session_id": "missing"})
+    resp = client.request("DELETE", "/v1/sessions", json={"user_id": "u1", "session_id": "missing"})
     assert resp.status_code == 500

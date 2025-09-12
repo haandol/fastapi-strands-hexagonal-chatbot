@@ -82,6 +82,84 @@ sys.modules.setdefault(
     "strands.tools.mcp", SimpleNamespace(MCPClient=DummyMCPClient)
 )
 
+# Stub strands.types module
+class DummySessionMessage:
+    def __init__(self, role: str, content: str):
+        self.role = role
+        self.content = content
+    
+    @classmethod
+    def __get_pydantic_core_schema__(cls, source_type, handler):
+        from pydantic_core import core_schema
+        return core_schema.any_schema()
+
+sys.modules.setdefault(
+    "strands.types.session", SimpleNamespace(SessionMessage=DummySessionMessage)
+)
+
+# Stub strands.session module
+class DummyS3SessionManager:
+    def __init__(self, *args, **kwargs):
+        pass
+
+sys.modules.setdefault(
+    "strands.session.s3_session_manager", SimpleNamespace(S3SessionManager=DummyS3SessionManager)
+)
+
+# Stub strands.tools.mcp.mcp_agent_tool module
+class DummyMCPAgentTool:
+    def __init__(self, *args, **kwargs):
+        pass
+
+sys.modules.setdefault(
+    "strands.tools.mcp.mcp_agent_tool", SimpleNamespace(MCPAgentTool=DummyMCPAgentTool)
+)
+
+# Stub strands.session.file_session_manager module
+class DummyFileSessionManager:
+    def __init__(self, *args, **kwargs):
+        pass
+
+sys.modules.setdefault(
+    "strands.session.file_session_manager", SimpleNamespace(FileSessionManager=DummyFileSessionManager)
+)
+
+# Stub strands.models.bedrock module
+class DummyBedrockModel:
+    def __init__(self, *args, **kwargs):
+        pass
+
+sys.modules.setdefault(
+    "strands.models.bedrock", SimpleNamespace(BedrockModel=DummyBedrockModel)
+)
+
+# Stub strands.agent.conversation_manager module
+class DummySlidingWindowConversationManager:
+    def __init__(self, *args, **kwargs):
+        pass
+
+sys.modules.setdefault(
+    "strands.agent.conversation_manager", SimpleNamespace(SlidingWindowConversationManager=DummySlidingWindowConversationManager)
+)
+
+# Stub O11yAdapter
+class DummyO11yAdapter:
+    def __init__(self, *args, **kwargs):
+        pass
+    
+    def trace_start(self, *args, **kwargs):
+        pass
+    
+    def trace_end(self, *args, **kwargs):
+        pass
+    
+    async def cleanup(self):
+        pass
+
+sys.modules.setdefault(
+    "ports.adapters.secondary.o11y_adapter", SimpleNamespace(O11yAdapter=DummyO11yAdapter)
+)
+
 class _DummyStructlog(SimpleNamespace):
     def __init__(self):
         processors = SimpleNamespace(

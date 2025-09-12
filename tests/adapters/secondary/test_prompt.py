@@ -1,4 +1,4 @@
-from adapters.secondary.chat.prompt import SYSTEM_PROMPT
+from services.chat.prompt import SYSTEM_PROMPT
 
 
 def test_system_prompt_defined():
