@@ -24,6 +24,7 @@ src/
 │       │   └── __init__.py
 │       ├── session/
 │       │   ├── strands_file_session_adapter.py
+│       │   ├── strands_s3_session_adapter.py
 │       │   └── __init__.py
 │       └── o11y/       # Observability adapters
 │           ├── langfuse_o11y_adapter.py
@@ -72,11 +73,12 @@ src/
 - **Hexagonal Architecture** for clean separation of concerns
 - **AWS Bedrock Integration** via Strands framework
 - **MCP (Model Context Protocol) Support** for extensible tool integration
-- **Session Management** with file-based persistence
-- **Streaming Support** for real-time chat responses
+- **Session Management** with file-based and S3 persistence options
+- **Streaming Support** for real-time chat responses with tool use events
 - **Health Check** endpoint
 - **Structured Logging** with structlog
 - **Observability** with optional Langfuse integration
+- **Guardrail Support** for content filtering
 
 ## Quick Start
 
@@ -115,14 +117,27 @@ cp env/local.env .env
 Create a `.env` file with the following variables:
 
 ```env
-MODEL_ID="us.anthropic.claude-sonnet-4-20250514-v1:0"
+# Agent
+MODEL_ID="us.anthropic.claude-3-7-sonnet-20250219-v1:0"
 MODEL_TEMPERATURE="0.3"
 MODEL_MAX_TOKENS="2048"
 # AWS_PROFILE_NAME="default"  # Optional
-ENVIRONMENT="local"
 
-# Observability
-TRACING_ENABLED="false"
+# Guardrail (Optional)
+# GUARDRAIL_ID="your-guardrail-id"
+# GUARDRAIL_VERSION="1"
+
+# S3 Session Storage (Optional - uses file-based storage if not set)
+# SESSION_BUCKET_NAME="your-session-bucket"
+# SESSION_PREFIX="sessions/"
+
+# Observability (Optional)
+# LANGFUSE_HOST="http://localhost:3000"
+# LANGFUSE_SECRET_KEY="sk-lf-xxxx"
+# LANGFUSE_PUBLIC_KEY="pk-lf-xxxx"
+
+# Environment
+ENVIRONMENT="local"
 ```
 
 #### MCP Configuration
@@ -186,8 +201,9 @@ POST /v1/invocations
 Content-Type: application/json
 
 {
-  "message": "Hello, how are you?",
+  "user_id": "user_123",
   "session_id": "session_123",
+  "message": "Hello, how are you?",
   "stream": false
 }
 ```
@@ -242,6 +258,7 @@ The DI container is initialized at application startup and provides services to 
 
 - `StrandsMCPAgentAdapter`: AWS Bedrock and MCP integration via Strands framework
 - `StrandsFileSessionAdapter`: File-based session storage implementation via Strands framework
+- `StrandsS3SessionAdapter`: S3-based session storage implementation via Strands framework
 - `LangfuseO11yAdapter`: Observability adapter for Langfuse tracing
 - `NoOpO11yAdapter`: No-operation observability adapter for disabled tracing
 
@@ -260,7 +277,7 @@ The application supports MCP (Model Context Protocol) through the `StrandsMCPAge
 - Loads MCP server configurations from `mcp_config.json` or environment-specific files
 - Initializes MCP clients for configured servers
 - Provides tools from MCP servers to the AI agent
-- Supports `stdio` and `streamable-http` transport type
+- Supports `streamable-http` and `stdio` transport type
 
 For detailed MCP usage, see [docs/MCP_USAGE.md](docs/MCP_USAGE.md).
 
